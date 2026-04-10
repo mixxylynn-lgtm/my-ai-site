@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "./lib/supabase";
 
 const FREE_LIMIT = 3;
 
@@ -12,23 +13,45 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [usageCount, setUsageCount] = useState(0);
+  const [userPlan, setUserPlan] = useState("free");
   const [showPaywall, setShowPaywall] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const user = localStorage.getItem("copyai_user");
-    if (user) setIsSignedIn(true);
-    const count = parseInt(localStorage.getItem("copyai_usage") || "0");
-    setUsageCount(count);
+    const email = localStorage.getItem("copyai_user");
+    if (email) {
+      setIsSignedIn(true);
+      loadUserFromSupabase(email);
+    }
   }, []);
+
+  const loadUserFromSupabase = async (email: string) => {
+    const { data } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (data) {
+      setUsageCount(data.generations_used);
+      setUserPlan(data.plan);
+      if (data.plan === "free" && data.generations_used >= FREE_LIMIT) {
+        setShowPaywall(true);
+      }
+    }
+  };
 
   const handleSignOut = () => {
     localStorage.removeItem("copyai_user");
     setIsSignedIn(false);
+    setUserPlan("free");
+    setUsageCount(0);
+    setShowPaywall(false);
   };
 
   const handleGenerate = async () => {
-    if (usageCount >= FREE_LIMIT) {
+    const isPaid = userPlan !== "free";
+    if (!isPaid && usageCount >= FREE_LIMIT) {
       setShowPaywall(true);
       return;
     }
@@ -39,6 +62,7 @@ export default function Home() {
     setError("");
     setLoading(true);
     setOutput("");
+
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -48,16 +72,26 @@ export default function Home() {
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
       setOutput(data.content || data.result || "No output.");
+
+      // Update generation count in Supabase
+      const email = localStorage.getItem("copyai_user");
       const newCount = usageCount + 1;
       setUsageCount(newCount);
-      localStorage.setItem("copyai_usage", newCount.toString());
-      if (newCount >= FREE_LIMIT) setShowPaywall(true);
+
+      await supabase
+        .from("users")
+        .update({ generations_used: newCount })
+        .eq("email", email);
+
+      if (!isPaid && newCount >= FREE_LIMIT) setShowPaywall(true);
     } catch {
       setError("Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
+
+  const isPaid = userPlan !== "free";
 
   return (
     <main style={{ fontFamily: "Georgia, serif", background: "#0a0a0f", minHeight: "100vh", color: "#f0ede6" }}>
@@ -74,7 +108,9 @@ export default function Home() {
           )}
           {isSignedIn && (
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <span style={{ fontSize: "13px", color: "#7a7060" }}>{FREE_LIMIT - usageCount > 0 ? `${FREE_LIMIT - usageCount} free generations left` : "Free limit reached"}</span>
+              <span style={{ fontSize: "13px", color: "#7a7060" }}>
+                {isPaid ? `${userPlan.charAt(0).toUpperCase() + userPlan.slice(1)} Plan ✓` : `${Math.max(0, FREE_LIMIT - usageCount)} free generations left`}
+              </span>
               <button onClick={handleSignOut} style={{ background: "transparent", color: "#9a9080", padding: "8px 20px", borderRadius: "4px", fontWeight: "700", fontSize: "14px", border: "1px solid #2a2a3a", cursor: "pointer" }}>
                 Sign Out
               </button>
@@ -107,10 +143,10 @@ export default function Home() {
         <section id="generator" style={{ maxWidth: "700px", margin: "0 auto", padding: "60px 24px" }}>
           <h2 style={{ fontSize: "32px", fontWeight: "800", marginBottom: "8px" }}>AI Copy Generator</h2>
           <p style={{ color: "#7a7060", fontSize: "14px", marginBottom: "32px" }}>
-            {usageCount < FREE_LIMIT ? `${FREE_LIMIT - usageCount} of ${FREE_LIMIT} free generations remaining` : "You've used all your free generations — upgrade to keep going!"}
+            {isPaid ? "Unlimited generations — enjoy!" : usageCount < FREE_LIMIT ? `${FREE_LIMIT - usageCount} of ${FREE_LIMIT} free generations remaining` : "You've used all your free generations — upgrade to keep going!"}
           </p>
 
-          {showPaywall && (
+          {showPaywall && !isPaid && (
             <div style={{ background: "#14111f", border: "2px solid #e8c97a", borderRadius: "8px", padding: "36px", textAlign: "center", marginBottom: "32px" }}>
               <h3 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "12px" }}>You've used your 3 free generations!</h3>
               <p style={{ color: "#7a7060", marginBottom: "28px", fontSize: "15px" }}>Upgrade to Starter to get 50 generations/mo for just $9.</p>
@@ -125,7 +161,7 @@ export default function Home() {
             </div>
           )}
 
-          {!showPaywall && (
+          {(isPaid || !showPaywall) && (
             <>
               <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#9a9080", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Brand Name</label>
@@ -137,7 +173,7 @@ export default function Home() {
               </div>
               {error && <p style={{ color: "#e05555", marginBottom: "16px" }}>{error}</p>}
               <button onClick={handleGenerate} disabled={loading} style={{ background: loading ? "#4a4030" : "#e8c97a", color: "#0a0a0f", border: "none", padding: "16px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", cursor: "pointer", width: "100%" }}>
-                {loading ? "Generating..." : `Generate Copy (${FREE_LIMIT - usageCount} left)`}
+                {loading ? "Generating..." : isPaid ? "Generate Copy" : `Generate Copy (${Math.max(0, FREE_LIMIT - usageCount)} left)`}
               </button>
             </>
           )}
