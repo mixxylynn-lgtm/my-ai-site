@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+const FREE_LIMIT = 3;
+
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [brand, setBrand] = useState("");
@@ -9,11 +11,15 @@ export default function Home() {
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [usageCount, setUsageCount] = useState(0);
+  const [showPaywall, setShowPaywall] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const user = localStorage.getItem("copyai_user");
     if (user) setIsSignedIn(true);
+    const count = parseInt(localStorage.getItem("copyai_usage") || "0");
+    setUsageCount(count);
   }, []);
 
   const handleSignOut = () => {
@@ -22,6 +28,10 @@ export default function Home() {
   };
 
   const handleGenerate = async () => {
+    if (usageCount >= FREE_LIMIT) {
+      setShowPaywall(true);
+      return;
+    }
     if (!brand || !details) {
       setError("Please fill in brand and details.");
       return;
@@ -38,6 +48,10 @@ export default function Home() {
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
       setOutput(data.content || data.result || "No output.");
+      const newCount = usageCount + 1;
+      setUsageCount(newCount);
+      localStorage.setItem("copyai_usage", newCount.toString());
+      if (newCount >= FREE_LIMIT) setShowPaywall(true);
     } catch {
       setError("Something went wrong.");
     } finally {
@@ -59,9 +73,12 @@ export default function Home() {
             </button>
           )}
           {isSignedIn && (
-            <button onClick={handleSignOut} style={{ background: "transparent", color: "#9a9080", padding: "8px 20px", borderRadius: "4px", fontWeight: "700", fontSize: "14px", border: "1px solid #2a2a3a", cursor: "pointer" }}>
-              Sign Out
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <span style={{ fontSize: "13px", color: "#7a7060" }}>{FREE_LIMIT - usageCount > 0 ? `${FREE_LIMIT - usageCount} free generations left` : "Free limit reached"}</span>
+              <button onClick={handleSignOut} style={{ background: "transparent", color: "#9a9080", padding: "8px 20px", borderRadius: "4px", fontWeight: "700", fontSize: "14px", border: "1px solid #2a2a3a", cursor: "pointer" }}>
+                Sign Out
+              </button>
+            </div>
           )}
         </div>
       </header>
@@ -88,19 +105,43 @@ export default function Home() {
 
       {isSignedIn && (
         <section id="generator" style={{ maxWidth: "700px", margin: "0 auto", padding: "60px 24px" }}>
-          <h2 style={{ fontSize: "32px", fontWeight: "800", marginBottom: "24px" }}>AI Copy Generator</h2>
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#9a9080", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Brand Name</label>
-            <input type="text" placeholder="e.g. CopyAI Pro" value={brand} onChange={e => setBrand(e.target.value)} style={{ width: "100%", background: "#111118", border: "1px solid #2a2a3a", borderRadius: "4px", padding: "12px 14px", color: "#f0ede6", fontSize: "15px", outline: "none", boxSizing: "border-box" }} />
-          </div>
-          <div style={{ marginBottom: "24px" }}>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#9a9080", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Key Details</label>
-            <textarea rows={4} placeholder="Describe your product, offer, audience..." value={details} onChange={e => setDetails(e.target.value)} style={{ width: "100%", background: "#111118", border: "1px solid #2a2a3a", borderRadius: "4px", padding: "12px 14px", color: "#f0ede6", fontSize: "15px", outline: "none", boxSizing: "border-box", resize: "vertical" }} />
-          </div>
-          {error && <p style={{ color: "#e05555", marginBottom: "16px" }}>{error}</p>}
-          <button onClick={handleGenerate} disabled={loading} style={{ background: loading ? "#4a4030" : "#e8c97a", color: "#0a0a0f", border: "none", padding: "16px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", cursor: "pointer", width: "100%" }}>
-            {loading ? "Generating..." : "Generate Copy"}
-          </button>
+          <h2 style={{ fontSize: "32px", fontWeight: "800", marginBottom: "8px" }}>AI Copy Generator</h2>
+          <p style={{ color: "#7a7060", fontSize: "14px", marginBottom: "32px" }}>
+            {usageCount < FREE_LIMIT ? `${FREE_LIMIT - usageCount} of ${FREE_LIMIT} free generations remaining` : "You've used all your free generations — upgrade to keep going!"}
+          </p>
+
+          {showPaywall && (
+            <div style={{ background: "#14111f", border: "2px solid #e8c97a", borderRadius: "8px", padding: "36px", textAlign: "center", marginBottom: "32px" }}>
+              <h3 style={{ fontSize: "24px", fontWeight: "900", marginBottom: "12px" }}>You've used your 3 free generations!</h3>
+              <p style={{ color: "#7a7060", marginBottom: "28px", fontSize: "15px" }}>Upgrade to Starter to get 50 generations/mo for just $9.</p>
+              <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
+                <a href="https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00" target="_blank" rel="noopener noreferrer" style={{ background: "#e8c97a", color: "#0a0a0f", padding: "14px 32px", borderRadius: "4px", fontWeight: "800", fontSize: "15px", textDecoration: "none" }}>
+                  Get Starter — $9/mo
+                </a>
+                <a href="https://buy.stripe.com/6oU4gyeJEgLi53e8pe2cg01" target="_blank" rel="noopener noreferrer" style={{ background: "transparent", color: "#e8c97a", padding: "14px 32px", borderRadius: "4px", fontWeight: "800", fontSize: "15px", textDecoration: "none", border: "1px solid #e8c97a" }}>
+                  Get Pro — $29/mo
+                </a>
+              </div>
+            </div>
+          )}
+
+          {!showPaywall && (
+            <>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#9a9080", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Brand Name</label>
+                <input type="text" placeholder="e.g. CopyAI Pro" value={brand} onChange={e => setBrand(e.target.value)} style={{ width: "100%", background: "#111118", border: "1px solid #2a2a3a", borderRadius: "4px", padding: "12px 14px", color: "#f0ede6", fontSize: "15px", outline: "none", boxSizing: "border-box" }} />
+              </div>
+              <div style={{ marginBottom: "24px" }}>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#9a9080", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Key Details</label>
+                <textarea rows={4} placeholder="Describe your product, offer, audience..." value={details} onChange={e => setDetails(e.target.value)} style={{ width: "100%", background: "#111118", border: "1px solid #2a2a3a", borderRadius: "4px", padding: "12px 14px", color: "#f0ede6", fontSize: "15px", outline: "none", boxSizing: "border-box", resize: "vertical" }} />
+              </div>
+              {error && <p style={{ color: "#e05555", marginBottom: "16px" }}>{error}</p>}
+              <button onClick={handleGenerate} disabled={loading} style={{ background: loading ? "#4a4030" : "#e8c97a", color: "#0a0a0f", border: "none", padding: "16px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", cursor: "pointer", width: "100%" }}>
+                {loading ? "Generating..." : `Generate Copy (${FREE_LIMIT - usageCount} left)`}
+              </button>
+            </>
+          )}
+
           {output && (
             <div style={{ marginTop: "32px", background: "#111118", border: "1px solid #2a2a3a", borderLeft: "3px solid #e8c97a", borderRadius: "6px", padding: "28px" }}>
               <p style={{ fontSize: "12px", color: "#e8c97a", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "16px" }}>Generated Copy</p>
@@ -113,7 +154,7 @@ export default function Home() {
       {!isSignedIn && (
         <section style={{ textAlign: "center", padding: "60px 24px", background: "#07070c" }}>
           <h2 style={{ fontSize: "32px", fontWeight: "800", marginBottom: "16px" }}>Sign in to use the generator</h2>
-          <p style={{ color: "#7a7060", marginBottom: "32px" }}>Create a free account to get started.</p>
+          <p style={{ color: "#7a7060", marginBottom: "32px" }}>Get 3 free generations, no credit card required.</p>
           <button onClick={() => router.push("/signin")} style={{ background: "#e8c97a", color: "#0a0a0f", padding: "16px 40px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", border: "none", cursor: "pointer" }}>
             Get Started Free
           </button>
