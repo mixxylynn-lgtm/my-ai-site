@@ -1,14 +1,25 @@
 "use client";
-import { useState } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { isSignedIn } = useUser();
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [brand, setBrand] = useState("");
   const [details, setDetails] = useState("");
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    const user = localStorage.getItem("copyai_user");
+    if (user) setIsSignedIn(true);
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("copyai_user");
+    setIsSignedIn(false);
+  };
 
   const handleGenerate = async () => {
     if (!brand || !details) {
@@ -43,13 +54,15 @@ export default function Home() {
         </span>
         <div>
           {!isSignedIn && (
-            <SignInButton>
-              <button style={{ background: "#e8c97a", color: "#0a0a0f", padding: "8px 20px", borderRadius: "4px", fontWeight: "700", fontSize: "14px", border: "none", cursor: "pointer" }}>
-                Sign In
-              </button>
-            </SignInButton>
+            <button onClick={() => router.push("/signin")} style={{ background: "#e8c97a", color: "#0a0a0f", padding: "8px 20px", borderRadius: "4px", fontWeight: "700", fontSize: "14px", border: "none", cursor: "pointer" }}>
+              Sign In
+            </button>
           )}
-          {isSignedIn && <UserButton />}
+          {isSignedIn && (
+            <button onClick={handleSignOut} style={{ background: "transparent", color: "#9a9080", padding: "8px 20px", borderRadius: "4px", fontWeight: "700", fontSize: "14px", border: "1px solid #2a2a3a", cursor: "pointer" }}>
+              Sign Out
+            </button>
+          )}
         </div>
       </header>
 
@@ -62,11 +75,9 @@ export default function Home() {
           Stop staring at a blank page. CopyAI Pro writes high-converting copy for your brand instantly.
         </p>
         {!isSignedIn && (
-          <SignInButton>
-            <button style={{ display: "inline-block", background: "#e8c97a", color: "#0a0a0f", padding: "16px 40px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", border: "none", cursor: "pointer" }}>
-              Get Started Free
-            </button>
-          </SignInButton>
+          <button onClick={() => router.push("/signin")} style={{ display: "inline-block", background: "#e8c97a", color: "#0a0a0f", padding: "16px 40px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", border: "none", cursor: "pointer" }}>
+            Get Started Free
+          </button>
         )}
         {isSignedIn && (
           <a href="#generator" style={{ display: "inline-block", background: "#e8c97a", color: "#0a0a0f", padding: "16px 40px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", textDecoration: "none" }}>
@@ -103,11 +114,9 @@ export default function Home() {
         <section style={{ textAlign: "center", padding: "60px 24px", background: "#07070c" }}>
           <h2 style={{ fontSize: "32px", fontWeight: "800", marginBottom: "16px" }}>Sign in to use the generator</h2>
           <p style={{ color: "#7a7060", marginBottom: "32px" }}>Create a free account to get started.</p>
-          <SignInButton>
-            <button style={{ background: "#e8c97a", color: "#0a0a0f", padding: "16px 40px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", border: "none", cursor: "pointer" }}>
-              Get Started Free
-            </button>
-          </SignInButton>
+          <button onClick={() => router.push("/signin")} style={{ background: "#e8c97a", color: "#0a0a0f", padding: "16px 40px", borderRadius: "4px", fontWeight: "800", fontSize: "16px", border: "none", cursor: "pointer" }}>
+            Get Started Free
+          </button>
         </section>
       )}
 
