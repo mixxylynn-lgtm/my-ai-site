@@ -33,11 +33,11 @@ export default function SignIn() {
         .from("users")
         .insert([{ email, plan: "free", generations_used: 0 }]);
 
-      if (insertError) {
-        setError("Something went wrong. Please try again.");
-        setIsLoading(false);
-        return;
-      }
+  if (insertError) {
+  setError(insertError.message);
+  setIsLoading(false);
+  return;
+}
     }
 
     localStorage.setItem("copyai_user", email);
