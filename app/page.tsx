@@ -9,6 +9,7 @@ export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [brand, setBrand] = useState("");
   const [details, setDetails] = useState("");
+  const [images, setImages] = useState<{data: string, type: string}[]>([]);
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,16 +43,28 @@ export default function Home() {
     setShowPaywall(false);
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const limited = files.slice(0, 3);
+    Promise.all(
+      limited.map(file => new Promise<{data: string, type: string}>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ data: reader.result as string, type: file.type });
+        reader.readAsDataURL(file);
+      }))
+    ).then(results => setImages(results));
+  };
+
   const handleGenerate = async () => {
     const isPaid = userPlan !== "free";
     if (!isPaid && usageCount >= FREE_LIMIT) { setShowPaywall(true); return; }
-    if (!brand || !details) { setError("Please fill in brand and details."); return; }
+    if (!brand && !details && images.length === 0) { setError("Please add photos or fill in some details."); return; }
     setError(""); setLoading(true); setOutput("");
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brand, details }),
+        body: JSON.stringify({ brand, details, images }),
       });
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
@@ -98,7 +111,7 @@ export default function Home() {
           Stop losing eBay sales to <span style={{ color: "#e8c97a" }}>bad listings</span>
         </h1>
         <p style={{ fontSize: "18px", color: "#a1a1aa", marginBottom: "36px", lineHeight: 1.6, maxWidth: "500px", margin: "0 auto 36px" }}>
-          CopyAI Pro writes high-converting eBay listings in seconds — works for Etsy and Amazon too. Sell more without writing a single word.
+          CopyAI Pro writes high-converting eBay listings in seconds — works for Etsy and Amazon too. Upload photos or describe your item and let AI do the rest.
         </p>
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginBottom: "48px" }}>
           <button onClick={() => router.push("/signin")} style={{ background: "#e8c97a", color: "#09090b", border: "none", padding: "12px 28px", borderRadius: "6px", fontWeight: 500, fontSize: "15px", cursor: "pointer" }}>Start free — 3 listings on us</button>
@@ -136,8 +149,8 @@ export default function Home() {
         <h2 style={{ fontSize: "clamp(28px, 4vw, 38px)", fontWeight: 500, lineHeight: 1.2, marginBottom: "40px", letterSpacing: "-0.5px" }}>From blank page to live listing in 3 steps</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
           {[
-            { num: "01", title: "Describe your item", desc: "Tell us your brand and key details about what you're selling — condition, size, era, anything relevant." },
-            { num: "02", title: "AI writes the listing", desc: "Our AI generates a full eBay listing — title, description, keywords — optimized to get clicks and convert." },
+            { num: "01", title: "Upload photos or describe your item", desc: "Snap a photo of your item or type a few details — condition, size, brand, era, anything relevant." },
+            { num: "02", title: "AI writes the listing", desc: "Our AI analyzes your photos and details to generate a full eBay listing — title, description, keywords — optimized to convert." },
             { num: "03", title: "Paste and sell", desc: "Copy your listing, paste it into eBay, Etsy, or Amazon, and start getting sales." },
           ].map(step => (
             <div key={step.num} style={{ background: "#111113", border: "0.5px solid #27272a", borderRadius: "10px", padding: "24px" }}>
@@ -221,17 +234,54 @@ export default function Home() {
 
           {(isPaid || !showPaywall) && (
             <>
+              {/* Image Upload */}
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "#71717a", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Item Photos (up to 3)</label>
+                <div
+                  onClick={() => document.getElementById("image-upload")?.click()}
+                  style={{ border: "0.5px dashed #3f3f46", borderRadius: "6px", padding: "24px", textAlign: "center", cursor: "pointer", background: "#111113" }}
+                >
+                  <p style={{ color: "#71717a", fontSize: "13px", margin: 0 }}>📸 Click to upload photos — AI will analyze them to write your listing</p>
+                  <p style={{ color: "#52525b", fontSize: "11px", margin: "4px 0 0" }}>JPG, PNG — up to 3 images</p>
+                </div>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style={{ display: "none" }}
+                  onChange={handleImageUpload}
+                />
+                {images.length > 0 && (
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    {images.map((img, i) => (
+                      <div key={i} style={{ position: "relative" }}>
+                        <img src={img.data} alt={`upload ${i + 1}`} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px", border: "0.5px solid #27272a" }} />
+                        <button
+                          onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                          style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ef4444", border: "none", borderRadius: "50%", width: "18px", height: "18px", color: "white", fontSize: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        >×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Brand */}
               <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "#71717a", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Brand / Store Name</label>
                 <input type="text" placeholder="e.g. Stevie's Thrift Shop" value={brand} onChange={e => setBrand(e.target.value)} style={{ width: "100%", background: "#111113", border: "0.5px solid #27272a", borderRadius: "6px", padding: "12px 14px", color: "#fafafa", fontSize: "15px", outline: "none", boxSizing: "border-box" }} />
               </div>
+
+              {/* Details */}
               <div style={{ marginBottom: "24px" }}>
-                <label style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "#71717a", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Item Details</label>
+                <label style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "#71717a", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Item Details (optional if uploading photos)</label>
                 <textarea rows={4} placeholder="Describe your item — brand, size, condition, color, era, anything relevant..." value={details} onChange={e => setDetails(e.target.value)} style={{ width: "100%", background: "#111113", border: "0.5px solid #27272a", borderRadius: "6px", padding: "12px 14px", color: "#fafafa", fontSize: "15px", outline: "none", boxSizing: "border-box", resize: "vertical" }} />
               </div>
+
               {error && <p style={{ color: "#ef4444", marginBottom: "16px", fontSize: "14px" }}>{error}</p>}
               <button onClick={handleGenerate} disabled={loading} style={{ background: loading ? "#4a4030" : "#e8c97a", color: "#09090b", border: "none", padding: "14px", borderRadius: "6px", fontWeight: 500, fontSize: "15px", cursor: "pointer", width: "100%", opacity: loading ? 0.6 : 1 }}>
-                {loading ? "Generating..." : isPaid ? "Generate listing" : `Generate listing (${Math.max(0, FREE_LIMIT - usageCount)} left)`}
+                {loading ? "Analyzing & generating..." : isPaid ? "Generate listing" : `Generate listing (${Math.max(0, FREE_LIMIT - usageCount)} left)`}
               </button>
             </>
           )}
@@ -248,7 +298,7 @@ export default function Home() {
       {/* Final CTA */}
       <div style={{ textAlign: "center", padding: "80px 24px", borderTop: "0.5px solid #27272a" }}>
         <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 500, marginBottom: "16px", letterSpacing: "-0.5px" }}>Your next listing writes itself</h2>
-        <p style={{ color: "#a1a1aa", fontSize: "16px", marginBottom: "32px" }}>Start free. No credit card required. 3 listings on us.</p>
+        <p style={{ color: "#a1a1aa", fontSize: "16px", marginBottom: "32px" }}>Upload a photo. Get a listing. Start selling.</p>
         <button onClick={() => router.push("/signin")} style={{ background: "#e8c97a", color: "#09090b", border: "none", padding: "14px 36px", borderRadius: "6px", fontWeight: 500, fontSize: "16px", cursor: "pointer" }}>Start free today</button>
       </div>
 

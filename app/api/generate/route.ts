@@ -7,7 +7,42 @@ const client = new Anthropic({
 
 export async function POST(req: NextRequest) {
   try {
-    const { brand, details } = await req.json();
+    const { brand, details, images } = await req.json();
+
+    const contentParts: any[] = [];
+
+    // Add images if provided
+    if (images && images.length > 0) {
+      for (const image of images) {
+        const base64Data = image.data.replace(/^data:image\/\w+;base64,/, "");
+        const mediaType = image.type || "image/jpeg";
+        contentParts.push({
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: mediaType,
+            data: base64Data,
+          },
+        });
+      }
+    }
+
+    // Add text prompt
+    contentParts.push({
+      type: "text",
+      text: `You are an expert eBay seller and copywriter. Write a high-converting eBay listing for the following item.
+
+${brand ? `Brand/Store: ${brand}` : ""}
+${details ? `Item Details: ${details}` : ""}
+${images && images.length > 0 ? "I have also provided images of the item — use them to identify key details like brand, condition, color, style, era, and any visible markings or tags." : ""}
+
+Write a complete eBay listing including:
+1. A compelling title (80 characters max, keyword-rich)
+2. A detailed description that highlights key features, condition, and why someone should buy it
+3. Suggested keywords/tags
+
+Make it sound human, specific, and persuasive. Focus on what makes this item valuable to a buyer.`,
+    });
 
     const message = await client.messages.create({
       model: "claude-opus-4-6",
@@ -15,12 +50,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `You are an expert copywriter. Write high-converting marketing copy for the following brand.
-
-Brand: ${brand}
-Details: ${details}
-
-Write compelling, engaging copy that grabs attention and drives action. Keep it concise and punchy.`,
+          content: contentParts,
         },
       ],
     });
@@ -34,7 +64,7 @@ Write compelling, engaging copy that grabs attention and drives action. Keep it 
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Failed to generate copy." },
+      { error: "Failed to generate listing." },
       { status: 500 }
     );
   }
