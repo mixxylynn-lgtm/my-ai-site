@@ -80,6 +80,21 @@ export default function Home() {
 
   const isPaid = userPlan !== "free";
 
+  const formatOutput = (text: string) => {
+    return text
+      .replace(/^### \*\*(.*?)\*\*/gm, '<h3 style="font-size:15px;font-weight:500;color:#fafafa;margin:20px 0 8px">$1</h3>')
+      .replace(/^### (.*?)$/gm, '<h3 style="font-size:15px;font-weight:500;color:#fafafa;margin:20px 0 8px">$1</h3>')
+      .replace(/^## \*\*(.*?)\*\*/gm, '<h2 style="font-size:17px;font-weight:500;color:#e8c97a;margin:20px 0 8px">$1</h2>')
+      .replace(/^## (.*?)$/gm, '<h2 style="font-size:17px;font-weight:500;color:#e8c97a;margin:20px 0 8px">$1</h2>')
+      .replace(/^# (.*?)$/gm, '<h1 style="font-size:20px;font-weight:500;color:#e8c97a;margin:0 0 16px">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#fafafa;font-weight:500">$1</strong>')
+      .replace(/`(.*?)`/g, '<code style="background:#1c1c1f;padding:2px 6px;border-radius:4px;font-size:13px;color:#e8c97a">$1</code>')
+      .replace(/^- ✅ (.*?)$/gm, '<div style="display:flex;gap:8px;margin:4px 0"><span style="color:#22c55e">✅</span><span>$1</span></div>')
+      .replace(/^- (.*?)$/gm, '<div style="display:flex;gap:8px;margin:4px 0"><span style="color:#e8c97a">•</span><span>$1</span></div>')
+      .replace(/^---$/gm, '<hr style="border:none;border-top:0.5px solid #27272a;margin:16px 0"/>')
+      .replace(/\n\n/g, '<br/><br/>');
+  };
+
   return (
     <main style={{ fontFamily: "system-ui, -apple-system, sans-serif", background: "#09090b", minHeight: "100vh", color: "#fafafa" }}>
 
@@ -267,10 +282,10 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Brand */}
+              {/* Item Name */}
               <div style={{ marginBottom: "16px" }}>
-                <label style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "#71717a", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Brand / Store Name</label>
-                <input type="text" placeholder="e.g. Stevie's Thrift Shop" value={brand} onChange={e => setBrand(e.target.value)} style={{ width: "100%", background: "#111113", border: "0.5px solid #27272a", borderRadius: "6px", padding: "12px 14px", color: "#fafafa", fontSize: "15px", outline: "none", boxSizing: "border-box" }} />
+                <label style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "#71717a", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Item Name</label>
+                <input type="text" placeholder="e.g. Harley Davidson Garmin GPS" value={brand} onChange={e => setBrand(e.target.value)} style={{ width: "100%", background: "#111113", border: "0.5px solid #27272a", borderRadius: "6px", padding: "12px 14px", color: "#fafafa", fontSize: "15px", outline: "none", boxSizing: "border-box" }} />
               </div>
 
               {/* Details */}
@@ -289,19 +304,10 @@ export default function Home() {
           {output && (
             <div style={{ marginTop: "32px", background: "#111113", border: "0.5px solid #27272a", borderLeft: "3px solid #e8c97a", borderRadius: "6px", padding: "28px" }}>
               <p style={{ fontSize: "11px", color: "#e8c97a", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "16px" }}>Generated Listing</p>
-              <div style={{ lineHeight: 1.8, color: "#fafafa" }} dangerouslySetInnerHTML={{ __html: output
-  .replace(/^### \*\*(.*?)\*\*/gm, '<h3 style="font-size:15px;font-weight:500;color:#fafafa;margin:20px 0 8px">$1</h3>')
-  .replace(/^### (.*?)$/gm, '<h3 style="font-size:15px;font-weight:500;color:#fafafa;margin:20px 0 8px">$1</h3>')
-  .replace(/^## \*\*(.*?)\*\*/gm, '<h2 style="font-size:17px;font-weight:500;color:#e8c97a;margin:20px 0 8px">$1</h2>')
-  .replace(/^## (.*?)$/gm, '<h2 style="font-size:17px;font-weight:500;color:#e8c97a;margin:20px 0 8px">$1</h2>')
-  .replace(/^# (.*?)$/gm, '<h1 style="font-size:20px;font-weight:500;color:#e8c97a;margin:0 0 16px">$1</h1>')
-  .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#fafafa;font-weight:500">$1</strong>')
-  .replace(/`(.*?)`/g, '<code style="background:#1c1c1f;padding:2px 6px;border-radius:4px;font-size:13px;color:#e8c97a">$1</code>')
-  .replace(/^- ✅ (.*?)$/gm, '<div style="display:flex;gap:8px;margin:4px 0"><span style="color:#22c55e">✅</span><span>$1</span></div>')
-  .replace(/^- (.*?)$/gm, '<div style="display:flex;gap:8px;margin:4px 0"><span style="color:#e8c97a">•</span><span>$1</span></div>')
-  .replace(/^---$/gm, '<hr style="border:none;border-top:0.5px solid #27272a;margin:16px 0"/>')
-  .replace(/\n\n/g, '<br/><br/>')
-}} />
+              <div
+                style={{ lineHeight: 1.8, color: "#a1a1aa", fontSize: "14px" }}
+                dangerouslySetInnerHTML={{ __html: formatOutput(output) }}
+              />
             </div>
           )}
         </div>
