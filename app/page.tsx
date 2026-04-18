@@ -11,6 +11,8 @@ export default function Home() {
   const [details, setDetails] = useState("");
   const [images, setImages] = useState<{data: string, type: string}[]>([]);
   const [output, setOutput] = useState("");
+  const [xpost, setXpost] = useState("");
+  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [usageCount, setUsageCount] = useState(0);
@@ -59,7 +61,7 @@ export default function Home() {
     const isPaid = userPlan !== "free";
     if (!isPaid && usageCount >= FREE_LIMIT) { setShowPaywall(true); return; }
     if (!brand && !details && images.length === 0) { setError("Please add photos or fill in some details."); return; }
-    setError(""); setLoading(true); setOutput("");
+    setError(""); setLoading(true); setOutput(""); setXpost(""); setCopied(false);
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -68,7 +70,8 @@ export default function Home() {
       });
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
-      setOutput(data.content || data.result || "No output.");
+      setOutput(data.content || "No output.");
+      setXpost(data.xpost || "");
       const email = localStorage.getItem("copyai_user");
       const newCount = usageCount + 1;
       setUsageCount(newCount);
@@ -76,6 +79,12 @@ export default function Home() {
       if (!isPaid && newCount >= FREE_LIMIT) setShowPaywall(true);
     } catch { setError("Something went wrong."); }
     finally { setLoading(false); }
+  };
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const isPaid = userPlan !== "free";
@@ -259,23 +268,13 @@ export default function Home() {
                   <p style={{ color: "#71717a", fontSize: "13px", margin: 0 }}>📸 Click to upload photos — AI will analyze them to write your listing</p>
                   <p style={{ color: "#52525b", fontSize: "11px", margin: "4px 0 0" }}>JPG, PNG — up to 3 images</p>
                 </div>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  style={{ display: "none" }}
-                  onChange={handleImageUpload}
-                />
+                <input id="image-upload" type="file" accept="image/*" multiple style={{ display: "none" }} onChange={handleImageUpload} />
                 {images.length > 0 && (
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                     {images.map((img, i) => (
                       <div key={i} style={{ position: "relative" }}>
                         <img src={img.data} alt={`upload ${i + 1}`} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px", border: "0.5px solid #27272a" }} />
-                        <button
-                          onClick={() => setImages(images.filter((_, idx) => idx !== i))}
-                          style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ef4444", border: "none", borderRadius: "50%", width: "18px", height: "18px", color: "white", fontSize: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                        >×</button>
+                        <button onClick={() => setImages(images.filter((_, idx) => idx !== i))} style={{ position: "absolute", top: "-6px", right: "-6px", background: "#ef4444", border: "none", borderRadius: "50%", width: "18px", height: "18px", color: "white", fontSize: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
                       </div>
                     ))}
                   </div>
@@ -301,13 +300,39 @@ export default function Home() {
             </>
           )}
 
+          {/* Generated Listing */}
           {output && (
             <div style={{ marginTop: "32px", background: "#111113", border: "0.5px solid #27272a", borderLeft: "3px solid #e8c97a", borderRadius: "6px", padding: "28px" }}>
-              <p style={{ fontSize: "11px", color: "#e8c97a", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "16px" }}>Generated Listing</p>
-              <div
-                style={{ lineHeight: 1.8, color: "#a1a1aa", fontSize: "14px" }}
-                dangerouslySetInnerHTML={{ __html: formatOutput(output) }}
-              />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                <p style={{ fontSize: "11px", color: "#e8c97a", letterSpacing: "2px", textTransform: "uppercase", margin: 0 }}>Generated Listing</p>
+                <button
+                  onClick={() => handleCopy(output)}
+                  style={{ background: copied ? "#22c55e" : "#1c1c1f", border: "0.5px solid #3f3f46", color: copied ? "white" : "#a1a1aa", padding: "6px 14px", borderRadius: "4px", fontSize: "12px", cursor: "pointer", fontWeight: 500 }}
+                >
+                  {copied ? "Copied!" : "Copy listing"}
+                </button>
+              </div>
+              <div style={{ lineHeight: 1.8, color: "#a1a1aa", fontSize: "14px" }} dangerouslySetInnerHTML={{ __html: formatOutput(output) }} />
+            </div>
+          )}
+
+          {/* X Post Card */}
+          {xpost && (
+            <div style={{ marginTop: "16px", background: "#111113", border: "0.5px solid #27272a", borderLeft: "3px solid #1d9bf0", borderRadius: "6px", padding: "28px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "16px" }}>𝕏</span>
+                  <p style={{ fontSize: "11px", color: "#1d9bf0", letterSpacing: "2px", textTransform: "uppercase", margin: 0 }}>Post this on X</p>
+                </div>
+                <button
+                  onClick={() => handleCopy(xpost)}
+                  style={{ background: "#1d9bf0", border: "none", color: "white", padding: "6px 14px", borderRadius: "4px", fontSize: "12px", cursor: "pointer", fontWeight: 500 }}
+                >
+                  Copy post
+                </button>
+              </div>
+              <p style={{ fontSize: "14px", color: "#fafafa", lineHeight: 1.7, margin: 0, whiteSpace: "pre-wrap" }}>{xpost}</p>
+              <p style={{ fontSize: "11px", color: "#52525b", marginTop: "12px", margin: "12px 0 0" }}>Copy this and paste it into X to promote your listing and drive buyers to your eBay page.</p>
             </div>
           )}
         </div>

@@ -11,7 +11,6 @@ export async function POST(req: NextRequest) {
 
     const contentParts: any[] = [];
 
-    // Add images if provided
     if (images && images.length > 0) {
       for (const image of images) {
         const base64Data = image.data.replace(/^data:image\/\w+;base64,/, "");
@@ -27,40 +26,45 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Add text prompt
     contentParts.push({
       type: "text",
-      text: `You are an expert eBay seller and copywriter. Write a high-converting eBay listing for the following item.
+      text: `You are an expert eBay seller and copywriter. Given the item details and/or photos, generate TWO things:
 
-${brand ? `Brand/Store: ${brand}` : ""}
+${brand ? `Item Name: ${brand}` : ""}
 ${details ? `Item Details: ${details}` : ""}
-${images && images.length > 0 ? "I have also provided images of the item — use them to identify key details like brand, condition, color, style, era, and any visible markings or tags." : ""}
+${images && images.length > 0 ? "Use the provided images to identify key details like brand, condition, color, style, era, and any visible markings." : ""}
 
-Write a complete eBay listing including:
-1. A compelling title (80 characters max, keyword-rich)
-2. A detailed description that highlights key features, condition, and why someone should buy it
-3. Suggested keywords/tags
+Generate your response in this EXACT format with these EXACT separators:
 
-Make it sound human, specific, and persuasive. Focus on what makes this item valuable to a buyer.`,
+===LISTING===
+[Full eBay listing including:
+- Title (80 chars max, keyword-rich)
+- Description (detailed, human, persuasive)
+- Suggested keywords]
+
+===XPOST===
+[A short punchy X/Twitter post promoting this item for sale. Max 280 chars. Include relevant hashtags. Make it sound like a real person selling something cool, not a robot. Do NOT include a URL placeholder.]`,
     });
 
     const message = await client.messages.create({
       model: "claude-opus-4-6",
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: contentParts,
-        },
-      ],
+      max_tokens: 1500,
+      messages: [{ role: "user", content: contentParts }],
     });
 
     const content = message.content[0];
     if (content.type === "text") {
-      return NextResponse.json({ content: content.text });
+      const text = content.text;
+      const listingMatch = text.match(/===LISTING===([\s\S]*?)===XPOST===/);
+      const xpostMatch = text.match(/===XPOST===([\s\S]*?)$/);
+
+      const listing = listingMatch ? listingMatch[1].trim() : text;
+      const xpost = xpostMatch ? xpostMatch[1].trim() : "";
+
+      return NextResponse.json({ content: listing, xpost });
     }
 
-    return NextResponse.json({ content: "No output generated." });
+    return NextResponse.json({ content: "No output generated.", xpost: "" });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
