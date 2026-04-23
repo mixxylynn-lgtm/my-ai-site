@@ -13,8 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CopyAI Pro",
-  description: "AI-generated copy for your brand in seconds.",
+  title: "CopyAI Pro — AI Listing Generator for eBay, Etsy & Amazon",
+  description: "Upload a photo and get a high-converting eBay listing in 30 seconds. Built for flippers and resellers. Try free.",
+  verification: {
+    google: "efiqTFJBbUHcE7ChR4B5vU3uYtr66ejMnoATvSZWUE8",
+  },
 };
 
 export default function RootLayout({
