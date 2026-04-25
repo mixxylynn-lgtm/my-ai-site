@@ -119,7 +119,7 @@ export default function Home() {
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
               <span style={{ fontSize: "13px", color: "#71717a" }}>
-                {isPaid ? `${userPlan.charAt(0).toUpperCase() + userPlan.slice(1)} plan ✓` : `${Math.max(0, FREE_LIMIT - usageCount)} generations left`}
+                {isPaid ? `Pro plan ✓` : `${Math.max(0, FREE_LIMIT - usageCount)} generations left`}
               </span>
               <a href="#generator" style={{ background: "#e8c97a", color: "#09090b", border: "none", padding: "8px 20px", borderRadius: "6px", fontWeight: 500, fontSize: "14px", cursor: "pointer", textDecoration: "none" }}>Generator</a>
               <button onClick={handleSignOut} style={{ background: "transparent", color: "#71717a", border: "0.5px solid #27272a", padding: "8px 16px", borderRadius: "6px", fontSize: "14px", cursor: "pointer" }}>Sign out</button>
@@ -211,27 +211,34 @@ export default function Home() {
       </div>
 
       {/* Pricing */}
-      <div id="pricing" style={{ padding: "80px 24px", maxWidth: "900px", margin: "0 auto", borderTop: "0.5px solid #27272a" }}>
-        <div style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "2px", color: "#e8c97a", textTransform: "uppercase", marginBottom: "12px" }}>Pricing</div>
-        <h2 style={{ fontSize: "clamp(28px, 4vw, 38px)", fontWeight: 500, lineHeight: 1.2, marginBottom: "40px", letterSpacing: "-0.5px" }}>Simple pricing, no surprises</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
-          <div style={{ background: "#111113", border: "0.5px solid #27272a", borderRadius: "10px", padding: "24px", display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: "13px", fontWeight: 500, marginBottom: "4px" }}>Starter</div>
-            <div style={{ fontSize: "36px", fontWeight: 500, margin: "12px 0 4px" }}>$9<span style={{ fontSize: "14px", color: "#71717a", fontWeight: 400 }}>/mo</span></div>
-            <div style={{ fontSize: "12px", color: "#71717a", marginBottom: "20px", flex: 1 }}>50 listings/mo. Perfect for casual flippers.</div>
-            <a href="https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00" target="_blank" rel="noopener noreferrer" style={{ width: "100%", padding: "10px", borderRadius: "6px", fontSize: "13px", fontWeight: 500, border: "0.5px solid #3f3f46", background: "transparent", color: "#fafafa", textDecoration: "none", textAlign: "center", display: "block" }}>Get Starter</a>
-          </div>
-          <div style={{ background: "#111113", border: "0.5px solid #e8c97a", borderRadius: "10px", padding: "24px", display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: "13px", fontWeight: 500, marginBottom: "4px", color: "#e8c97a" }}>Pro — most popular</div>
-            <div style={{ fontSize: "36px", fontWeight: 500, margin: "12px 0 4px" }}>$29<span style={{ fontSize: "14px", color: "#71717a", fontWeight: 400 }}>/mo</span></div>
-            <div style={{ fontSize: "12px", color: "#71717a", marginBottom: "20px", flex: 1 }}>Unlimited listings. Best for serious sellers.</div>
-            <a href="https://buy.stripe.com/6oU4gyeJEgLi53e8pe2cg01" target="_blank" rel="noopener noreferrer" style={{ width: "100%", padding: "10px", borderRadius: "6px", fontSize: "13px", fontWeight: 500, border: "none", background: "#e8c97a", color: "#09090b", textDecoration: "none", textAlign: "center", display: "block" }}>Get Pro</a>
-          </div>
-          <div style={{ background: "#111113", border: "0.5px solid #27272a", borderRadius: "10px", padding: "24px", display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: "13px", fontWeight: 500, marginBottom: "4px" }}>Business</div>
-            <div style={{ fontSize: "36px", fontWeight: 500, margin: "12px 0 4px" }}>$69<span style={{ fontSize: "14px", color: "#71717a", fontWeight: 400 }}>/mo</span></div>
-            <div style={{ fontSize: "12px", color: "#71717a", marginBottom: "20px", flex: 1 }}>Everything in Pro + 5 team seats.</div>
-            <a href="https://buy.stripe.com/9B600i30Wcv2dzKbBq2cg02" target="_blank" rel="noopener noreferrer" style={{ width: "100%", padding: "10px", borderRadius: "6px", fontSize: "13px", fontWeight: 500, border: "0.5px solid #3f3f46", background: "transparent", color: "#fafafa", textDecoration: "none", textAlign: "center", display: "block" }}>Get Business</a>
+      <div id="pricing" style={{ padding: "80px 24px", borderTop: "0.5px solid #27272a" }}>
+        <div style={{ maxWidth: "480px", margin: "0 auto", textAlign: "center" }}>
+          <div style={{ fontSize: "11px", fontWeight: 500, letterSpacing: "2px", color: "#e8c97a", textTransform: "uppercase", marginBottom: "12px" }}>Pricing</div>
+          <h2 style={{ fontSize: "clamp(28px, 4vw, 38px)", fontWeight: 500, lineHeight: 1.2, marginBottom: "12px", letterSpacing: "-0.5px" }}>One plan. Everything included.</h2>
+          <p style={{ color: "#71717a", fontSize: "15px", marginBottom: "40px" }}>No tiers, no confusion. Just unlimited AI listings for $9/mo.</p>
+          <div style={{ background: "#111113", border: "0.5px solid #e8c97a", borderRadius: "12px", padding: "40px" }}>
+            <div style={{ fontSize: "13px", fontWeight: 500, color: "#e8c97a", marginBottom: "8px" }}>CopyAI Pro</div>
+            <div style={{ fontSize: "56px", fontWeight: 500, margin: "12px 0 4px" }}>$9<span style={{ fontSize: "18px", color: "#71717a", fontWeight: 400 }}>/mo</span></div>
+            <p style={{ color: "#71717a", fontSize: "14px", marginBottom: "32px" }}>Cancel anytime. No contracts.</p>
+            <div style={{ textAlign: "left", marginBottom: "32px" }}>
+              {[
+                "Unlimited AI listing generations",
+                "Photo upload — AI analyzes your item",
+                "Custom X post for every listing",
+                "eBay, Etsy & Amazon ready",
+                "Keywords & title optimization",
+                "Email support",
+              ].map(feature => (
+                <div key={feature} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 0", borderBottom: "0.5px solid #1c1c1f" }}>
+                  <span style={{ color: "#22c55e", fontSize: "14px" }}>✓</span>
+                  <span style={{ fontSize: "14px", color: "#a1a1aa" }}>{feature}</span>
+                </div>
+              ))}
+            </div>
+            <a href="https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00" target="_blank" rel="noopener noreferrer" style={{ display: "block", width: "100%", padding: "14px", borderRadius: "6px", fontSize: "15px", fontWeight: 500, border: "none", background: "#e8c97a", color: "#09090b", textDecoration: "none", textAlign: "center" }}>
+              Get started — $9/mo
+            </a>
+            <p style={{ color: "#52525b", fontSize: "12px", marginTop: "12px" }}>3 free listings included. No credit card required to start.</p>
           </div>
         </div>
       </div>
@@ -248,11 +255,11 @@ export default function Home() {
           {showPaywall && !isPaid && (
             <div style={{ background: "#111113", border: "0.5px solid #e8c97a", borderRadius: "10px", padding: "36px", textAlign: "center", marginBottom: "32px" }}>
               <h3 style={{ fontSize: "22px", fontWeight: 500, marginBottom: "12px" }}>You've used your 3 free listings</h3>
-              <p style={{ color: "#71717a", marginBottom: "28px", fontSize: "15px" }}>Upgrade to keep generating high-converting listings.</p>
-              <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-                <a href="https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00" target="_blank" rel="noopener noreferrer" style={{ background: "#e8c97a", color: "#09090b", padding: "10px 24px", borderRadius: "6px", fontWeight: 500, fontSize: "14px", textDecoration: "none" }}>Get Starter — $9/mo</a>
-                <a href="https://buy.stripe.com/6oU4gyeJEgLi53e8pe2cg01" target="_blank" rel="noopener noreferrer" style={{ background: "transparent", color: "#e8c97a", padding: "10px 24px", borderRadius: "6px", fontWeight: 500, fontSize: "14px", textDecoration: "none", border: "0.5px solid #e8c97a" }}>Get Pro — $29/mo</a>
-              </div>
+              <p style={{ color: "#71717a", marginBottom: "8px", fontSize: "15px" }}>Upgrade to keep generating unlimited listings.</p>
+              <p style={{ color: "#52525b", fontSize: "13px", marginBottom: "28px" }}>Just $9/mo. Cancel anytime.</p>
+              <a href="https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00" target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: "#e8c97a", color: "#09090b", padding: "12px 36px", borderRadius: "6px", fontWeight: 500, fontSize: "15px", textDecoration: "none" }}>
+                Upgrade for $9/mo
+              </a>
             </div>
           )}
 
@@ -261,10 +268,7 @@ export default function Home() {
               {/* Image Upload */}
               <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "#71717a", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>Item Photos (up to 3)</label>
-                <div
-                  onClick={() => document.getElementById("image-upload")?.click()}
-                  style={{ border: "0.5px dashed #3f3f46", borderRadius: "6px", padding: "24px", textAlign: "center", cursor: "pointer", background: "#111113" }}
-                >
+                <div onClick={() => document.getElementById("image-upload")?.click()} style={{ border: "0.5px dashed #3f3f46", borderRadius: "6px", padding: "24px", textAlign: "center", cursor: "pointer", background: "#111113" }}>
                   <p style={{ color: "#71717a", fontSize: "13px", margin: 0 }}>📸 Click to upload photos — AI will analyze them to write your listing</p>
                   <p style={{ color: "#52525b", fontSize: "11px", margin: "4px 0 0" }}>JPG, PNG — up to 3 images</p>
                 </div>
@@ -305,10 +309,7 @@ export default function Home() {
             <div style={{ marginTop: "32px", background: "#111113", border: "0.5px solid #27272a", borderLeft: "3px solid #e8c97a", borderRadius: "6px", padding: "28px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                 <p style={{ fontSize: "11px", color: "#e8c97a", letterSpacing: "2px", textTransform: "uppercase", margin: 0 }}>Generated Listing</p>
-                <button
-                  onClick={() => handleCopy(output)}
-                  style={{ background: copied ? "#22c55e" : "#1c1c1f", border: "0.5px solid #3f3f46", color: copied ? "white" : "#a1a1aa", padding: "6px 14px", borderRadius: "4px", fontSize: "12px", cursor: "pointer", fontWeight: 500 }}
-                >
+                <button onClick={() => handleCopy(output)} style={{ background: copied ? "#22c55e" : "#1c1c1f", border: "0.5px solid #3f3f46", color: copied ? "white" : "#a1a1aa", padding: "6px 14px", borderRadius: "4px", fontSize: "12px", cursor: "pointer", fontWeight: 500 }}>
                   {copied ? "Copied!" : "Copy listing"}
                 </button>
               </div>
@@ -324,10 +325,7 @@ export default function Home() {
                   <span style={{ fontSize: "16px" }}>𝕏</span>
                   <p style={{ fontSize: "11px", color: "#1d9bf0", letterSpacing: "2px", textTransform: "uppercase", margin: 0 }}>Post this on X</p>
                 </div>
-                <button
-                  onClick={() => handleCopy(xpost)}
-                  style={{ background: "#1d9bf0", border: "none", color: "white", padding: "6px 14px", borderRadius: "4px", fontSize: "12px", cursor: "pointer", fontWeight: 500 }}
-                >
+                <button onClick={() => handleCopy(xpost)} style={{ background: "#1d9bf0", border: "none", color: "white", padding: "6px 14px", borderRadius: "4px", fontSize: "12px", cursor: "pointer", fontWeight: 500 }}>
                   Copy post
                 </button>
               </div>
