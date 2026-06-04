@@ -190,7 +190,13 @@ export default function Home() {
           <div style={{fontSize:"48px",fontWeight:"800",marginBottom:"4px"}}>$9<span style={{fontSize:"18px",fontWeight:"400",color:"#666"}}>/mo</span></div>
           <p style={{color:"#666",fontSize:"14px",marginBottom:"28px"}}>Cancel anytime. No contracts.</p>
           <ul style={{listStyle:"none",padding:0,marginBottom:"28px",textAlign:"left"}}>
-            {["Unlimited AI listing generations","eBay, Etsy & Amazon ready","Title, description & keywords","Price estimator tool","Custom X post for every listing","Email support"].map(f=>(
+            {[
+              "Unlimited AI listing generations",
+              "eBay, Etsy & Amazon ready",
+              "Title, description & keywords",
+              "Price estimator tool",
+              "Email support"
+            ].map(f=>(
               <li key={f} style={{padding:"8px 0",borderBottom:"1px solid #1a1a1a",fontSize:"15px",color:"#ccc"}}>✓ {f}</li>
             ))}
           </ul>
@@ -211,8 +217,9 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer style={{textAlign:"center",padding:"24px",borderTop:"1px solid #1a1a1a",color:"#444",fontSize:"13px"}}>
-        © 2026 CopyAI Pro — All rights reserved.
+      <footer style={{textAlign:"center",padding:"32px 24px",borderTop:"1px solid #1a1a1a"}}>
+        <p style={{color:"#444",fontSize:"13px",marginBottom:"8px"}}>© 2026 CopyAI Pro — All rights reserved.</p>
+        <p style={{color:"#333",fontSize:"13px"}}>Built by a Texas flipper who got tired of writing listings. Questions? DM me on X — <a href="https://x.com/ThriftAndStack" target="_blank" style={{color:"#22d3ee",textDecoration:"none"}}>@ThriftAndStack</a></p>
       </footer>
 
     </main>
