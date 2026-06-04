@@ -46,14 +46,14 @@ export default function Home() {
         </div>
         <h1 style={{fontSize:"48px",fontWeight:"800",lineHeight:"1.15",marginBottom:"20px",letterSpacing:"-1px"}}>
           Your eBay listings are<br/>
-          <span style={{color:"#f59e0b"}}>losing you sales</span>
+          <span style={{color:"#22d3ee"}}>losing you sales</span>
         </h1>
         <p style={{color:"#888",fontSize:"18px",lineHeight:"1.7",marginBottom:"16px",maxWidth:"560px",margin:"0 auto 16px"}}>
           I flip thrift finds on eBay every week. Bad titles and weak descriptions cost me sales — so I built CopyAI Pro to fix that. Describe your item and get an optimized listing in 30 seconds.
         </p>
         <p style={{color:"#666",fontSize:"14px",marginBottom:"36px"}}>— Stevie Ray, <a href="https://x.com/ThriftAndStack" target="_blank" style={{color:"#888",textDecoration:"none"}}>@ThriftAndStack</a></p>
         <div style={{display:"flex",gap:"12px",justifyContent:"center",flexWrap:"wrap"}}>
-          <a href="#tools" style={{background:"#f59e0b",color:"black",fontWeight:"bold",padding:"14px 32px",borderRadius:"8px",textDecoration:"none",fontSize:"16px"}}>
+          <a href="#tools" style={{background:"#22d3ee",color:"black",fontWeight:"bold",padding:"14px 32px",borderRadius:"8px",textDecoration:"none",fontSize:"16px"}}>
             Try free — 3 listings on us
           </a>
           <a href="#how" style={{background:"transparent",color:"white",fontWeight:"bold",padding:"14px 32px",borderRadius:"8px",textDecoration:"none",fontSize:"16px",border:"1px solid #333"}}>
@@ -73,8 +73,8 @@ export default function Home() {
               Blue vintage jacket. Size M. Good condition. Pick up or shipping available.
             </p>
           </div>
-          <div style={{background:"#111",border:"1px solid #f59e0b",borderRadius:"12px",padding:"24px"}}>
-            <div style={{fontSize:"12px",fontWeight:"700",color:"#f59e0b",marginBottom:"12px",letterSpacing:"1px"}}>AFTER — COPYAI PRO</div>
+          <div style={{background:"#111",border:"1px solid #22d3ee",borderRadius:"12px",padding:"24px"}}>
+            <div style={{fontSize:"12px",fontWeight:"700",color:"#22d3ee",marginBottom:"12px",letterSpacing:"1px"}}>AFTER — COPYAI PRO</div>
             <p style={{color:"#ddd",fontSize:"14px",lineHeight:"1.7",margin:0}}>
               <strong>Vintage 90s Levi's Denim Jacket | Size M | Distressed Wash | Rare Find — Ships Fast</strong><br/><br/>
               Head-turning vintage style meets everyday wearability. Authentic 90s Levi's with classic distressed wash — perfect for collectors and streetwear lovers. Ships same day.
@@ -88,12 +88,12 @@ export default function Home() {
         <div style={{display:"flex",gap:"8px",marginBottom:"24px",background:"#111",padding:"6px",borderRadius:"10px",border:"1px solid #222"}}>
           <button
             onClick={()=>{setTab("listing");setResult("");}}
-            style={{flex:1,padding:"12px",borderRadius:"8px",border:"none",cursor:"pointer",fontWeight:"700",fontSize:"15px",background:tab==="listing"?"#f59e0b":"transparent",color:tab==="listing"?"black":"#666",transition:"all 0.2s"}}>
+            style={{flex:1,padding:"12px",borderRadius:"8px",border:"none",cursor:"pointer",fontWeight:"700",fontSize:"15px",background:tab==="listing"?"#22d3ee":"transparent",color:tab==="listing"?"black":"#666",transition:"all 0.2s"}}>
             ✍️ Write My Listing
           </button>
           <button
             onClick={()=>{setTab("price");setResult("");}}
-            style={{flex:1,padding:"12px",borderRadius:"8px",border:"none",cursor:"pointer",fontWeight:"700",fontSize:"15px",background:tab==="price"?"#f59e0b":"transparent",color:tab==="price"?"black":"#666",transition:"all 0.2s"}}>
+            style={{flex:1,padding:"12px",borderRadius:"8px",border:"none",cursor:"pointer",fontWeight:"700",fontSize:"15px",background:tab==="price"?"#22d3ee":"transparent",color:tab==="price"?"black":"#666",transition:"all 0.2s"}}>
             💰 Price My Item
           </button>
         </div>
@@ -129,15 +129,15 @@ export default function Home() {
           <button
             onClick={generate}
             disabled={loading||!item}
-            style={{width:"100%",background:loading?"#333":"#f59e0b",color:loading?"#666":"black",fontWeight:"bold",padding:"14px",borderRadius:"8px",border:"none",cursor:loading?"not-allowed":"pointer",fontSize:"16px"}}>
+            style={{width:"100%",background:loading?"#333":"#22d3ee",color:loading?"#666":"black",fontWeight:"bold",padding:"14px",borderRadius:"8px",border:"none",cursor:loading?"not-allowed":"pointer",fontSize:"16px"}}>
             {loading
               ? tab === "listing" ? "Writing your listing..." : "Estimating price..."
               : tab === "listing" ? "Generate my listing" : "What's it worth?"}
           </button>
 
           {result && (
-            <div style={{marginTop:"24px",background:"#0f0f0f",border:"1px solid #f59e0b",borderRadius:"12px",padding:"24px"}}>
-              <div style={{fontSize:"12px",fontWeight:"700",color:"#f59e0b",marginBottom:"12px",letterSpacing:"1px"}}>
+            <div style={{marginTop:"24px",background:"#0f0f0f",border:"1px solid #22d3ee",borderRadius:"12px",padding:"24px"}}>
+              <div style={{fontSize:"12px",fontWeight:"700",color:"#22d3ee",marginBottom:"12px",letterSpacing:"1px"}}>
                 {tab === "listing" ? "YOUR LISTING:" : "PRICE ESTIMATE:"}
               </div>
               <div style={{color:"#ddd",fontSize:"14px",lineHeight:"1.8",whiteSpace:"pre-wrap"}}>{result}</div>
@@ -151,17 +151,17 @@ export default function Home() {
         <h2 style={{textAlign:"center",fontSize:"28px",fontWeight:"700",marginBottom:"48px"}}>From blank page to live listing in 3 steps</h2>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"24px"}}>
           <div style={{textAlign:"center"}}>
-            <div style={{fontSize:"32px",fontWeight:"800",color:"#f59e0b",marginBottom:"12px"}}>01</div>
+            <div style={{fontSize:"32px",fontWeight:"800",color:"#22d3ee",marginBottom:"12px"}}>01</div>
             <h3 style={{fontWeight:"700",marginBottom:"8px",fontSize:"16px"}}>Describe your item</h3>
             <p style={{color:"#666",fontSize:"14px",lineHeight:"1.6"}}>Type a few details — brand, size, condition, era. The more you give, the better it writes.</p>
           </div>
           <div style={{textAlign:"center"}}>
-            <div style={{fontSize:"32px",fontWeight:"800",color:"#f59e0b",marginBottom:"12px"}}>02</div>
+            <div style={{fontSize:"32px",fontWeight:"800",color:"#22d3ee",marginBottom:"12px"}}>02</div>
             <h3 style={{fontWeight:"700",marginBottom:"8px",fontSize:"16px"}}>AI writes the listing</h3>
             <p style={{color:"#666",fontSize:"14px",lineHeight:"1.6"}}>Optimized title, full description, and keywords — written to convert buyers, not just describe the item.</p>
           </div>
           <div style={{textAlign:"center"}}>
-            <div style={{fontSize:"32px",fontWeight:"800",color:"#f59e0b",marginBottom:"12px"}}>03</div>
+            <div style={{fontSize:"32px",fontWeight:"800",color:"#22d3ee",marginBottom:"12px"}}>03</div>
             <h3 style={{fontWeight:"700",marginBottom:"8px",fontSize:"16px"}}>Paste and sell</h3>
             <p style={{color:"#666",fontSize:"14px",lineHeight:"1.6"}}>Copy it straight into eBay. Done. List more, sell more, spend less time writing.</p>
           </div>
@@ -173,7 +173,7 @@ export default function Home() {
         <div style={{background:"#111",border:"1px solid #222",borderRadius:"16px",padding:"32px"}}>
           <div style={{fontSize:"13px",color:"#666",marginBottom:"16px",fontWeight:"700",letterSpacing:"1px"}}>WHY I BUILT THIS</div>
           <p style={{color:"#ccc",fontSize:"16px",lineHeight:"1.8",marginBottom:"20px"}}>
-            I flip thrift finds on eBay every week under <a href="https://x.com/ThriftAndStack" target="_blank" style={{color:"#f59e0b",textDecoration:"none"}}>@ThriftAndStack</a>. Writing listings always slowed me down — bad titles meant less visibility, weak descriptions meant fewer sales.
+            I flip thrift finds on eBay every week under <a href="https://x.com/ThriftAndStack" target="_blank" style={{color:"#22d3ee",textDecoration:"none"}}>@ThriftAndStack</a>. Writing listings always slowed me down — bad titles meant less visibility, weak descriptions meant fewer sales.
           </p>
           <p style={{color:"#ccc",fontSize:"16px",lineHeight:"1.8",marginBottom:"20px"}}>
             So I built CopyAI Pro to do it for me. It takes 30 seconds. I use it on every single listing now.
@@ -186,7 +186,7 @@ export default function Home() {
       <section id="pricing" style={{maxWidth:"480px",margin:"0 auto",padding:"0 24px 100px",textAlign:"center"}}>
         <h2 style={{fontSize:"28px",fontWeight:"700",marginBottom:"12px"}}>Simple pricing</h2>
         <p style={{color:"#666",fontSize:"16px",marginBottom:"40px"}}>One plan. Everything included. Cancel anytime.</p>
-        <div style={{background:"#111",border:"1px solid #f59e0b",borderRadius:"16px",padding:"36px"}}>
+        <div style={{background:"#111",border:"1px solid #22d3ee",borderRadius:"16px",padding:"36px"}}>
           <div style={{fontSize:"48px",fontWeight:"800",marginBottom:"4px"}}>$9<span style={{fontSize:"18px",fontWeight:"400",color:"#666"}}>/mo</span></div>
           <p style={{color:"#666",fontSize:"14px",marginBottom:"28px"}}>Cancel anytime. No contracts.</p>
           <ul style={{listStyle:"none",padding:0,marginBottom:"28px",textAlign:"left"}}>
@@ -194,7 +194,7 @@ export default function Home() {
               <li key={f} style={{padding:"8px 0",borderBottom:"1px solid #1a1a1a",fontSize:"15px",color:"#ccc"}}>✓ {f}</li>
             ))}
           </ul>
-          <a href="https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00" target="_blank" style={{display:"block",background:"#f59e0b",color:"black",fontWeight:"bold",padding:"16px",borderRadius:"8px",textDecoration:"none",fontSize:"16px",marginBottom:"12px"}}>
+          <a href="https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00" target="_blank" style={{display:"block",background:"#22d3ee",color:"black",fontWeight:"bold",padding:"16px",borderRadius:"8px",textDecoration:"none",fontSize:"16px",marginBottom:"12px"}}>
             Get started — $9/mo
           </a>
           <p style={{color:"#555",fontSize:"13px"}}>3 free listings included. No credit card to start.</p>
@@ -205,7 +205,7 @@ export default function Home() {
       <section style={{textAlign:"center",padding:"0 24px 80px"}}>
         <h2 style={{fontSize:"28px",fontWeight:"700",marginBottom:"16px"}}>Your next listing writes itself</h2>
         <p style={{color:"#666",marginBottom:"28px"}}>Describe your item. Get a listing. Start selling.</p>
-        <a href="#tools" style={{display:"inline-block",background:"#f59e0b",color:"black",fontWeight:"bold",padding:"16px 40px",borderRadius:"8px",textDecoration:"none",fontSize:"16px"}}>
+        <a href="#tools" style={{display:"inline-block",background:"#22d3ee",color:"black",fontWeight:"bold",padding:"16px 40px",borderRadius:"8px",textDecoration:"none",fontSize:"16px"}}>
           Start free today
         </a>
       </section>
