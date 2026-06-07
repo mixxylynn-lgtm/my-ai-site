@@ -16,13 +16,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { brand, details, images } = body;
 
-    if (!brand && !details && (!images || images.length === 0)) {
-      return NextResponse.json(
-        { error: "Please provide item details." },
-        { status: 400 }
-      );
-    }
-
     const contentParts: any[] = [];
 
     if (images && images.length > 0) {
@@ -40,8 +33,8 @@ export async function POST(req: NextRequest) {
       type: "text",
       text: `You are an expert eBay seller and copywriter. Generate TWO things based on the item info below.
 
-Item: ${brand || ""}
-Details: ${details || ""}
+Item: ${brand || "unknown item"}
+Details: ${details || "no additional details"}
 ${images && images.length > 0 ? "Also use the provided images to identify key details." : ""}
 
 Respond in this EXACT format:
