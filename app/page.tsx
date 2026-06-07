@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "./lib/supabase";
 
 function formatText(text: string) {
   return text
@@ -15,8 +17,39 @@ export default function Home() {
   const [result, setResult] = useState("");
   const [xpost, setXpost] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [generationsUsed, setGenerationsUsed] = useState(0);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const email = localStorage.getItem("copyai_user");
+    if (email) {
+      setUserEmail(email);
+      fetchUserData(email);
+    }
+  }, []);
+
+  const fetchUserData = async (email: string) => {
+    const { data } = await supabase
+      .from("users")
+      .select("generations_used, plan")
+      .eq("email", email)
+      .single();
+    if (data) {
+      setGenerationsUsed(data.generations_used || 0);
+      if (data.plan === "free" && (data.generations_used || 0) >= 3) {
+        setShowPaywall(true);
+      }
+    }
+  };
 
   const generate = async () => {
+    if (!userEmail) {
+      router.push("/signin");
+      return;
+    }
+    if (showPaywall) return;
     setLoading(true);
     setResult("");
     setXpost("");
@@ -35,17 +68,44 @@ export default function Home() {
     const data = await res.json();
     setResult(data.content || data.error || "Something went wrong.");
     setXpost(data.xpost || "");
+
+    const newCount = generationsUsed + 1;
+    await supabase
+      .from("users")
+      .update({ generations_used: newCount })
+      .eq("email", userEmail);
+    setGenerationsUsed(newCount);
+    if (newCount >= 3) setShowPaywall(true);
+
     setLoading(false);
   };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("copyai_user");
+    setUserEmail(null);
+    setGenerationsUsed(0);
+    setShowPaywall(false);
+  };
+
+  const stripeUrl = "https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00";
 
   return (
     <main style={{ minHeight: "100vh", background: "#0a0a0a", color: "white", fontFamily: "system-ui,sans-serif" }}>
 
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "1px solid #1f1f1f" }}>
-        <div style={{ fontSize: "18px", fontWeight: "bold", color: "white" }}>CopyAI Pro</div>
-        <a href="#tools" style={{ background: "#22d3ee", color: "black", fontWeight: "bold", padding: "10px 22px", borderRadius: "8px", textDecoration: "none", fontSize: "14px" }}>
-          Try it free
-        </a>
+        <div style={{ fontSize: "18px", fontWeight: "bold" }}>CopyAI Pro</div>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          {userEmail ? (
+            <>
+              <span style={{ color: "#555", fontSize: "13px" }}>{userEmail}</span>
+              <button onClick={handleSignOut} style={{ background: "transparent", border: "1px solid #333", color: "#555", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontSize: "13px" }}>Sign out</button>
+            </>
+          ) : (
+            <button onClick={() => router.push("/signin")} style={{ background: "#22d3ee", color: "black", fontWeight: "bold", padding: "10px 22px", borderRadius: "8px", border: "none", cursor: "pointer", fontSize: "14px" }}>
+              Sign in
+            </button>
+          )}
+        </div>
       </header>
 
       <section style={{ maxWidth: "680px", margin: "0 auto", padding: "80px 24px 48px", textAlign: "center" }}>
@@ -59,7 +119,9 @@ export default function Home() {
         <p style={{ color: "#888", fontSize: "17px", lineHeight: "1.75", maxWidth: "520px", margin: "0 auto 16px" }}>
           CopyAI Pro writes optimized product listings for marketplace sellers in 30 seconds. eBay, Etsy, Facebook Marketplace, Depop — describe your item and get a listing ready to paste.
         </p>
-        <p style={{ color: "#555", fontSize: "14px", marginBottom: "32px" }}>— Stevie Ray, <a href="https://x.com/ThriftAndStack" target="_blank" style={{ color: "#666", textDecoration: "none" }}>@ThriftAndStack</a> — I built this because I sell on eBay myself and got tired of writing listings</p>
+        <p style={{ color: "#555", fontSize: "14px", marginBottom: "32px" }}>
+          — Stevie Ray, <a href="https://x.com/ThriftAndStack" target="_blank" style={{ color: "#666", textDecoration: "none" }}>@ThriftAndStack</a> — I built this because I sell on eBay myself and got tired of writing listings
+        </p>
         <a href="#tools" style={{ display: "inline-block", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px 36px", borderRadius: "8px", textDecoration: "none", fontSize: "16px" }}>
           Write my first listing — free
         </a>
@@ -98,37 +160,61 @@ export default function Home() {
         </div>
 
         <div style={{ background: "#111", border: "1px solid #1f1f1f", borderRadius: "16px", padding: "28px" }}>
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>Which platform?</label>
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {["eBay", "Etsy", "Facebook Marketplace", "Depop", "Poshmark"].map(p => (
-                <button key={p} onClick={() => setPlatform(p)} style={{ padding: "7px 14px", borderRadius: "999px", border: "1px solid", borderColor: platform === p ? "#22d3ee" : "#2a2a2a", background: platform === p ? "#0d1f24" : "transparent", color: platform === p ? "#22d3ee" : "#555", fontSize: "13px", cursor: "pointer", fontWeight: platform === p ? "700" : "400" }}>
-                  {p}
-                </button>
-              ))}
-            </div>
-          </div>
 
-          <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>
-            {tab === "listing" ? "Describe your item" : "What are you selling?"}
-          </label>
-          <textarea
-            value={item}
-            onChange={e => setItem(e.target.value)}
-            placeholder={tab === "listing"
-              ? "e.g. Vintage Levi's denim jacket, size M, 90s wash, good condition, no rips"
-              : "e.g. Nike Air Max 90, size 10, worn a few times, 2019, no box"}
-            rows={3}
-            style={{ width: "100%", background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "12px", color: "white", fontSize: "14px", boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", marginBottom: "16px" }}
-          />
-          <button
-            onClick={generate}
-            disabled={loading || !item}
-            style={{ width: "100%", background: loading ? "#1a1a1a" : "#22d3ee", color: loading ? "#444" : "black", fontWeight: "bold", padding: "13px", borderRadius: "8px", border: "none", cursor: loading ? "not-allowed" : "pointer", fontSize: "15px" }}>
-            {loading
-              ? tab === "listing" ? "Writing your listing..." : "Estimating price..."
-              : tab === "listing" ? `Generate my ${platform} listing` : `What's it worth on ${platform}?`}
-          </button>
+          {userEmail && (
+            <div style={{ marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "13px", color: "#555" }}>Free listings used</span>
+              <span style={{ fontSize: "13px", color: generationsUsed >= 3 ? "#ef4444" : "#22d3ee", fontWeight: "700" }}>
+                {Math.min(generationsUsed, 3)} / 3
+              </span>
+            </div>
+          )}
+
+          {showPaywall ? (
+            <div style={{ textAlign: "center", padding: "20px 0" }}>
+              <div style={{ fontSize: "32px", marginBottom: "12px" }}>🔒</div>
+              <h3 style={{ fontWeight: "800", fontSize: "20px", marginBottom: "8px" }}>You have used your 3 free listings</h3>
+              <p style={{ color: "#555", fontSize: "14px", marginBottom: "24px" }}>Upgrade to keep generating unlimited listings for just $9/mo.</p>
+              <a href={stripeUrl} target="_blank" rel="noreferrer" style={{ display: "block", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px", borderRadius: "8px", textDecoration: "none", fontSize: "15px" }}>
+                Upgrade — $9/mo
+              </a>
+            </div>
+          ) : (
+            <div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>Which platform?</label>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  {["eBay", "Etsy", "Facebook Marketplace", "Depop", "Poshmark"].map(p => (
+                    <button key={p} onClick={() => setPlatform(p)} style={{ padding: "7px 14px", borderRadius: "999px", border: "1px solid", borderColor: platform === p ? "#22d3ee" : "#2a2a2a", background: platform === p ? "#0d1f24" : "transparent", color: platform === p ? "#22d3ee" : "#555", fontSize: "13px", cursor: "pointer", fontWeight: platform === p ? "700" : "400" }}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>
+                {tab === "listing" ? "Describe your item" : "What are you selling?"}
+              </label>
+              <textarea
+                value={item}
+                onChange={e => setItem(e.target.value)}
+                placeholder={tab === "listing"
+                  ? "e.g. Vintage Levi's denim jacket, size M, 90s wash, good condition, no rips"
+                  : "e.g. Nike Air Max 90, size 10, worn a few times, 2019, no box"}
+                rows={3}
+                style={{ width: "100%", background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "12px", color: "white", fontSize: "14px", boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", marginBottom: "16px" }}
+              />
+              <button
+                onClick={generate}
+                disabled={loading || !item}
+                style={{ width: "100%", background: loading ? "#1a1a1a" : "#22d3ee", color: loading ? "#444" : "black", fontWeight: "bold", padding: "13px", borderRadius: "8px", border: "none", cursor: loading ? "not-allowed" : "pointer", fontSize: "15px" }}>
+                {loading
+                  ? tab === "listing" ? "Writing your listing..." : "Estimating price..."
+                  : !userEmail ? "Sign in to generate"
+                  : tab === "listing" ? `Generate my ${platform} listing` : `What's it worth on ${platform}?`}
+              </button>
+            </div>
+          )}
 
           {result && (
             <div style={{ marginTop: "20px" }}>
@@ -136,18 +222,12 @@ export default function Home() {
                 <div style={{ fontSize: "11px", fontWeight: "700", color: "#22d3ee", marginBottom: "10px", letterSpacing: "1.5px" }}>
                   {tab === "listing" ? "YOUR LISTING:" : "PRICE ESTIMATE:"}
                 </div>
-                <div
-                  style={{ color: "#ccc", fontSize: "14px", lineHeight: "1.8" }}
-                  dangerouslySetInnerHTML={{ __html: formatText(result) }}
-                />
+                <div style={{ color: "#ccc", fontSize: "14px", lineHeight: "1.8" }} dangerouslySetInnerHTML={{ __html: formatText(result) }} />
               </div>
               {xpost && (
-                <div style={{ background: "#0a0a0a", border: "1px solid #333", borderRadius: "10px", padding: "20px" }}>
+                <div style={{ background: "#0a0a0a", border: "1px solid #333", borderRadius: "10px", padding: "20px", marginTop: "16px" }}>
                   <div style={{ fontSize: "11px", fontWeight: "700", color: "#aaa", marginBottom: "10px", letterSpacing: "1.5px" }}>𝕏 POST DRAFT:</div>
-                  <div
-                    style={{ color: "#ccc", fontSize: "14px", lineHeight: "1.8" }}
-                    dangerouslySetInnerHTML={{ __html: formatText(xpost) }}
-                  />
+                  <div style={{ color: "#ccc", fontSize: "14px", lineHeight: "1.8" }} dangerouslySetInnerHTML={{ __html: formatText(xpost) }} />
                 </div>
               )}
             </div>
@@ -196,7 +276,7 @@ export default function Home() {
               <li key={f} style={{ padding: "8px 0", borderBottom: "1px solid #1a1a1a", fontSize: "14px", color: "#aaa" }}>✓ {f}</li>
             ))}
           </ul>
-          <a href="https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00" target="_blank" style={{ display: "block", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px", borderRadius: "8px", textDecoration: "none", fontSize: "15px", marginBottom: "10px" }}>
+          <a href={stripeUrl} target="_blank" rel="noreferrer" style={{ display: "block", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px", borderRadius: "8px", textDecoration: "none", fontSize: "15px", marginBottom: "10px" }}>
             Get started — $9/mo
           </a>
           <p style={{ color: "#444", fontSize: "12px" }}>3 free listings included. No credit card to start.</p>
