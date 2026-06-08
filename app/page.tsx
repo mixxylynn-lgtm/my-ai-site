@@ -116,7 +116,7 @@ export default function Home() {
           <span style={{ color: "#22d3ee" }}>by hand.</span>
         </h1>
         <p style={{ color: "#888", fontSize: "17px", lineHeight: "1.75", maxWidth: "520px", margin: "0 auto 16px" }}>
-          Describe your item once and CopyAI Pro writes an optimized listing <span style={{ color: "#ccc" }}>and</span> tells you what to price it — in 30 seconds. Built for eBay, Etsy, Facebook Marketplace, Depop &amp; Poshmark.
+          Describe your item once and CopyAI Pro writes an optimized listing and tells you what to price it — in 30 seconds. Built for eBay, Etsy, Facebook Marketplace, Depop and Poshmark.
         </p>
         <p style={{ color: "#555", fontSize: "14px", marginBottom: "32px" }}>
           — Stevie Ray, <a href="https://x.com/ThriftAndStack" target="_blank" style={{ color: "#666", textDecoration: "none" }}>@ThriftAndStack</a> — I built this because I sell on eBay myself and got tired of writing listings
