@@ -86,12 +86,34 @@ export default function Home() {
     setShowPaywall(false);
   };
 
-  const stripeUrl = "https://buy.stripe.com/aFaaEWeJE66EgLW9ti2cg00";
+  const [billing, setBilling] = useState<"monthly" | "annual" | "lifetime">("monthly");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const startCheckout = async (plan: "monthly" | "annual" | "lifetime") => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, email: userEmail }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || "Could not start checkout. Please try again.");
+        setCheckoutLoading(false);
+      }
+    } catch {
+      alert("Could not start checkout. Please try again.");
+      setCheckoutLoading(false);
+    }
+  };
 
   return (
     <main style={{ minHeight: "100vh", background: "radial-gradient(1100px 600px at 50% -120px, rgba(34,211,238,0.16), rgba(34,211,238,0.05) 35%, transparent 70%), #0a0a0a", backgroundRepeat: "no-repeat", color: "white", fontFamily: "system-ui,sans-serif" }}>
 
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "1px solid #1f1f1f" }}>
+      <header className="site-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #1f1f1f" }}>
         <div style={{ fontSize: "18px", fontWeight: "bold" }}>CopyAI Pro</div>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           {userEmail ? (
@@ -107,11 +129,11 @@ export default function Home() {
         </div>
       </header>
 
-      <section style={{ maxWidth: "680px", margin: "0 auto", padding: "80px 24px 48px", textAlign: "center" }}>
+      <section className="hero-section" style={{ maxWidth: "680px", margin: "0 auto", textAlign: "center" }}>
         <div style={{ display: "inline-block", background: "#1a1a1a", color: "#aaa", fontSize: "13px", padding: "6px 16px", borderRadius: "999px", marginBottom: "28px", border: "1px solid #2a2a2a" }}>
           Built by a reseller, for resellers
         </div>
-        <h1 style={{ fontSize: "46px", fontWeight: "800", lineHeight: "1.15", marginBottom: "20px", letterSpacing: "-1px" }}>
+        <h1 className="hero-h1" style={{ fontWeight: "800", lineHeight: "1.15", marginBottom: "20px", letterSpacing: "-1px" }}>
           Stop writing listings<br />
           <span style={{ color: "#22d3ee" }}>by hand.</span>
         </h1>
@@ -128,7 +150,7 @@ export default function Home() {
       </section>
 
       <section style={{ maxWidth: "780px", margin: "0 auto", padding: "0 24px 72px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="grid-2">
           <div style={{ background: "#111", border: "1px solid #1f1f1f", borderRadius: "12px", padding: "24px" }}>
             <div style={{ fontSize: "11px", fontWeight: "700", color: "#444", marginBottom: "12px", letterSpacing: "1.5px" }}>BEFORE</div>
             <p style={{ color: "#555", fontSize: "14px", lineHeight: "1.7", margin: 0 }}>
@@ -168,9 +190,9 @@ export default function Home() {
               <div style={{ fontSize: "32px", marginBottom: "12px" }}>🔒</div>
               <h3 style={{ fontWeight: "800", fontSize: "20px", marginBottom: "8px" }}>You have used your 3 free listings</h3>
               <p style={{ color: "#555", fontSize: "14px", marginBottom: "24px" }}>Upgrade to keep generating unlimited listings for just $9/mo.</p>
-              <a href={stripeUrl} target="_blank" rel="noreferrer" style={{ display: "block", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px", borderRadius: "8px", textDecoration: "none", fontSize: "15px" }}>
-                Upgrade — $9/mo
-              </a>
+              <button onClick={() => startCheckout("monthly")} disabled={checkoutLoading} style={{ display: "block", width: "100%", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px", borderRadius: "8px", border: "none", cursor: checkoutLoading ? "not-allowed" : "pointer", fontSize: "15px" }}>
+                {checkoutLoading ? "Starting checkout…" : "Upgrade — $9/mo"}
+              </button>
             </div>
           ) : (
             <div>
@@ -234,7 +256,7 @@ export default function Home() {
 
       <section style={{ maxWidth: "680px", margin: "0 auto", padding: "0 24px 80px", textAlign: "center" }}>
         <h2 style={{ fontSize: "24px", fontWeight: "700", marginBottom: "40px" }}>How it works</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
+        <div className="grid-3">
           {[
             { n: "01", t: "Pick your platform", b: "eBay, Etsy, Depop, Facebook Marketplace — choose where you're selling." },
             { n: "02", t: "Describe your item", b: "Brand, size, condition. One sentence is enough. AI handles the rest." },
@@ -263,19 +285,60 @@ export default function Home() {
       </section>
 
       <section id="pricing" style={{ maxWidth: "440px", margin: "0 auto", padding: "0 24px 100px", textAlign: "center" }}>
-        <h2 style={{ fontSize: "24px", fontWeight: "700", marginBottom: "8px" }}>One plan. $9 a month.</h2>
-        <p style={{ color: "#555", fontSize: "15px", marginBottom: "32px" }}>Cancel anytime. No contracts. No tiers.</p>
-        <div style={{ background: "#111", border: "1px solid #22d3ee", borderRadius: "16px", padding: "32px" }}>
-          <div style={{ fontSize: "44px", fontWeight: "800", marginBottom: "4px" }}>$9<span style={{ fontSize: "16px", fontWeight: "400", color: "#555" }}>/mo</span></div>
-          <p style={{ color: "#555", fontSize: "13px", marginBottom: "24px" }}>Everything included.</p>
+        <h2 style={{ fontSize: "24px", fontWeight: "700", marginBottom: "8px" }}>Simple pricing.</h2>
+        <p style={{ color: "#555", fontSize: "15px", marginBottom: "24px" }}>Cancel anytime. No contracts. No tiers.</p>
+
+        <div style={{ display: "inline-flex", background: "#111", border: "1px solid #1f1f1f", borderRadius: "999px", padding: "4px", marginBottom: "28px" }}>
+          {([
+            { key: "monthly", label: "Monthly" },
+            { key: "annual", label: "Annual" },
+            { key: "lifetime", label: "Lifetime" },
+          ] as const).map(opt => (
+            <button
+              key={opt.key}
+              onClick={() => setBilling(opt.key)}
+              style={{ padding: "8px 18px", borderRadius: "999px", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: billing === opt.key ? "700" : "400", background: billing === opt.key ? "#22d3ee" : "transparent", color: billing === opt.key ? "black" : "#888" }}>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ position: "relative", background: "#111", border: "1px solid #22d3ee", borderRadius: "16px", padding: "32px" }}>
+          {billing === "annual" && (
+            <div style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: "#22d3ee", color: "black", fontSize: "11px", fontWeight: "800", letterSpacing: "0.5px", padding: "5px 14px", borderRadius: "999px", whiteSpace: "nowrap" }}>
+              BEST VALUE — SAVE $39
+            </div>
+          )}
+          {billing === "lifetime" && (
+            <div style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: "#22d3ee", color: "black", fontSize: "11px", fontWeight: "800", letterSpacing: "0.5px", padding: "5px 14px", borderRadius: "999px", whiteSpace: "nowrap" }}>
+              PAY ONCE — NO SUBSCRIPTION
+            </div>
+          )}
+          <div style={{ fontSize: "44px", fontWeight: "800", marginBottom: "4px" }}>
+            {billing === "lifetime" ? "$350" : billing === "annual" ? "$69" : "$9"}
+            <span style={{ fontSize: "16px", fontWeight: "400", color: "#555" }}>
+              {billing === "lifetime" ? " once" : billing === "annual" ? "/yr" : "/mo"}
+            </span>
+          </div>
+          <p style={{ color: "#555", fontSize: "13px", marginBottom: "24px" }}>
+            {billing === "lifetime"
+              ? "Pay once. Yours forever — no recurring bill."
+              : billing === "annual" ? "That's $5.75/mo — billed yearly." : "Everything included."}
+          </p>
           <ul style={{ listStyle: "none", padding: 0, marginBottom: "24px", textAlign: "left" }}>
             {["Unlimited listing generations", "Works for eBay, Etsy, Depop & more", "AI price estimator", "Keyword-optimized titles", "Full item descriptions", "Email support"].map(f => (
               <li key={f} style={{ padding: "8px 0", borderBottom: "1px solid #1a1a1a", fontSize: "14px", color: "#aaa" }}>✓ {f}</li>
             ))}
           </ul>
-          <a href={stripeUrl} target="_blank" rel="noreferrer" style={{ display: "block", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px", borderRadius: "8px", textDecoration: "none", fontSize: "15px", marginBottom: "10px" }}>
-            Get started — $9/mo
-          </a>
+          <button
+            onClick={() => startCheckout(billing)}
+            disabled={checkoutLoading}
+            style={{ display: "block", width: "100%", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px", borderRadius: "8px", border: "none", cursor: checkoutLoading ? "not-allowed" : "pointer", fontSize: "15px", marginBottom: "10px" }}>
+            {checkoutLoading
+              ? "Starting checkout…"
+              : billing === "lifetime" ? "Get lifetime access — $350"
+              : billing === "annual" ? "Get started — $69/yr" : "Get started — $9/mo"}
+          </button>
           <p style={{ color: "#444", fontSize: "12px" }}>3 free listings included. No credit card to start.</p>
         </div>
       </section>
