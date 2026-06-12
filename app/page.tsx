@@ -16,6 +16,7 @@ export default function Home() {
   const [result, setResult] = useState("");
   const [price, setPrice] = useState("");
   const [xpost, setXpost] = useState("");
+  const [photo, setPhoto] = useState<{ data: string; type: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [generationsUsed, setGenerationsUsed] = useState(0);
@@ -44,12 +45,21 @@ export default function Home() {
     }
   };
 
+  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setPhoto({ data: reader.result as string, type: file.type });
+    reader.readAsDataURL(file);
+  };
+
   const generate = async () => {
     if (!userEmail) {
       router.push("/signin");
       return;
     }
     if (showPaywall) return;
+    if (!item && !photo) return;
     setLoading(true);
     setResult("");
     setPrice("");
@@ -60,7 +70,11 @@ export default function Home() {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ brand: item, details }),
+      body: JSON.stringify({
+        brand: item,
+        details,
+        images: photo ? [photo] : undefined,
+      }),
     });
 
     const data = await res.json();
@@ -207,8 +221,32 @@ export default function Home() {
                 </div>
               </div>
 
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>
+                  Upload a photo <span style={{ color: "#444" }}>(optional — let AI identify it for you)</span>
+                </label>
+                {photo ? (
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photo.data} alt="Item to list" style={{ maxHeight: "160px", maxWidth: "100%", borderRadius: "8px", border: "1px solid #2a2a2a", display: "block" }} />
+                    <button
+                      onClick={() => setPhoto(null)}
+                      style={{ position: "absolute", top: "8px", right: "8px", background: "rgba(0,0,0,0.7)", border: "1px solid #333", color: "#ddd", borderRadius: "999px", width: "28px", height: "28px", cursor: "pointer", fontSize: "14px", lineHeight: "1" }}
+                      aria-label="Remove photo">
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "20px", background: "#1a1a1a", border: "1px dashed #2a2a2a", borderRadius: "8px", color: "#666", fontSize: "14px", cursor: "pointer" }}>
+                    📷 Tap to upload a photo
+                    <input type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
+                  </label>
+                )}
+              </div>
+
               <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>
-                Describe your item
+                {photo ? "Add details " : "Describe your item"}
+                {photo && <span style={{ color: "#444" }}>(optional)</span>}
               </label>
               <textarea
                 value={item}
@@ -219,7 +257,7 @@ export default function Home() {
               />
               <button
                 onClick={generate}
-                disabled={loading || !item}
+                disabled={loading || (!item && !photo)}
                 style={{ width: "100%", background: loading ? "#1a1a1a" : "#22d3ee", color: loading ? "#444" : "black", fontWeight: "bold", padding: "13px", borderRadius: "8px", border: "none", cursor: loading ? "not-allowed" : "pointer", fontSize: "15px" }}>
                 {loading
                   ? "Writing listing + pricing it..."
