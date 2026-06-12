@@ -353,7 +353,7 @@ export default function Home() {
 
       <footer style={{ textAlign: "center", padding: "28px 24px", borderTop: "1px solid #1a1a1a" }}>
         <p style={{ color: "#333", fontSize: "13px", marginBottom: "6px" }}>© 2026 CopyAI Pro — All rights reserved.</p>
-        <p style={{ color: "#2a2a2a", fontSize: "13px" }}>Built by a reseller who got tired of writing listings. Questions? DM me — <a href="https://x.com/ThriftAndStack" target="_blank" style={{ color: "#333", textDecoration: "none" }}>@ThriftAndStack</a></p>
+        <p style={{ color: "#2a2a2a", fontSize: "13px" }}>Built by a reseller who got tired of writing listings. Questions? DM us on X → <a href="https://x.com/ThriftAndStack" target="_blank" style={{ color: "#333", textDecoration: "none" }}>@ThriftAndStack</a></p>
       </footer>
 
     </main>
