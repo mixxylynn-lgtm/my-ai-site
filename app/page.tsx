@@ -152,7 +152,7 @@ export default function Home() {
           <span style={{ color: "#22d3ee" }}>by hand.</span>
         </h1>
         <p style={{ color: "#888", fontSize: "17px", lineHeight: "1.75", maxWidth: "520px", margin: "0 auto 16px" }}>
-          Describe your item once and CopyAI Pro writes an optimized listing and tells you what to price it — in 30 seconds. Built for eBay, Etsy, Facebook Marketplace, Depop and Poshmark.
+          CopyAI Pro is an AI eBay listing generator that writes optimized listings and tells you what to price them — in 30 seconds. Write eBay listings with AI, plus Etsy, Facebook Marketplace, Depop and Poshmark.
         </p>
         <p style={{ color: "#555", fontSize: "14px", marginBottom: "32px" }}>
           — Stevie Ray, <a href="https://x.com/ThriftAndStack" target="_blank" style={{ color: "#666", textDecoration: "none" }}>@ThriftAndStack</a> — I built this because I sell on eBay myself and got tired of writing listings
@@ -183,7 +183,7 @@ export default function Home() {
       </section>
 
       <section id="tools" style={{ maxWidth: "620px", margin: "0 auto", padding: "0 24px 80px" }}>
-        <h2 style={{ textAlign: "center", fontSize: "22px", fontWeight: "700", marginBottom: "6px" }}>Try it now — free</h2>
+        <h2 style={{ textAlign: "center", fontSize: "22px", fontWeight: "700", marginBottom: "6px" }}>Write eBay listings with AI — free to try</h2>
         <p style={{ textAlign: "center", color: "#666", fontSize: "14px", marginBottom: "20px" }}>
           Describe your item once. Get a ready-to-paste listing <span style={{ color: "#22d3ee" }}>and</span> a suggested price — together.
         </p>
@@ -293,7 +293,7 @@ export default function Home() {
       </section>
 
       <section style={{ maxWidth: "680px", margin: "0 auto", padding: "0 24px 80px", textAlign: "center" }}>
-        <h2 style={{ fontSize: "24px", fontWeight: "700", marginBottom: "40px" }}>How it works</h2>
+        <h2 style={{ fontSize: "24px", fontWeight: "700", marginBottom: "40px" }}>How the AI listing generator works</h2>
         <div className="grid-3">
           {[
             { n: "01", t: "Pick your platform", b: "eBay, Etsy, Depop, Facebook Marketplace — choose where you're selling." },
@@ -316,7 +316,7 @@ export default function Home() {
             I flip thrift finds on eBay every week under <a href="https://x.com/ThriftAndStack" target="_blank" style={{ color: "#22d3ee", textDecoration: "none" }}>@ThriftAndStack</a>. Writing listings always slowed me down. Bad titles meant less visibility. Weak descriptions meant fewer sales.
           </p>
           <p style={{ color: "#aaa", fontSize: "15px", lineHeight: "1.8", marginBottom: "16px" }}>
-            So I built CopyAI Pro to handle it. Thirty seconds. I use it on every single item I list.
+            So I built CopyAI Pro to handle it. Thirty seconds. I use it on every single item I list. It's the AI Etsy listing tool and eBay listing writer I always wished I had.
           </p>
           <p style={{ color: "#555", fontSize: "13px" }}>— Stevie Ray, reseller & builder</p>
         </div>
