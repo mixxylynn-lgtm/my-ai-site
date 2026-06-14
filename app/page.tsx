@@ -148,17 +148,17 @@ export default function Home() {
           Built by a reseller, for resellers
         </div>
         <h1 className="hero-h1" style={{ fontWeight: "800", lineHeight: "1.15", marginBottom: "20px", letterSpacing: "-1px" }}>
-          Stop writing listings<br />
-          <span style={{ color: "#22d3ee" }}>by hand.</span>
+          Snap a photo.<br />
+          <span style={{ color: "#22d3ee" }}>Get a listing.</span>
         </h1>
         <p style={{ color: "#888", fontSize: "17px", lineHeight: "1.75", maxWidth: "520px", margin: "0 auto 16px" }}>
-          CopyAI Pro is an AI eBay listing generator that writes optimized listings and tells you what to price them — in 30 seconds. Write eBay listings with AI, plus Etsy, Facebook Marketplace, Depop and Poshmark.
+          Take a photo of your item and CopyAI Pro — an AI eBay listing generator — writes an optimized listing and prices it in 30 seconds. No typing needed. Works for eBay, Etsy, Depop, Poshmark and Facebook Marketplace, or write eBay listings with AI from a quick description.
         </p>
         <p style={{ color: "#555", fontSize: "14px", marginBottom: "32px" }}>
           — Stevie Ray, <a href="https://x.com/ThriftAndStack" target="_blank" style={{ color: "#666", textDecoration: "none" }}>@ThriftAndStack</a> — I built this because I sell on eBay myself and got tired of writing listings
         </p>
         <a href="#tools" style={{ display: "inline-block", background: "#22d3ee", color: "black", fontWeight: "bold", padding: "14px 36px", borderRadius: "8px", textDecoration: "none", fontSize: "16px" }}>
-          Write my first listing — free
+          Snap a photo — get my listing free
         </a>
         <p style={{ color: "#444", fontSize: "13px", marginTop: "12px" }}>3 free listings. No credit card needed.</p>
       </section>
@@ -166,13 +166,16 @@ export default function Home() {
       <section style={{ maxWidth: "780px", margin: "0 auto", padding: "0 24px 72px" }}>
         <div className="grid-2">
           <div style={{ background: "#111", border: "1px solid #1f1f1f", borderRadius: "12px", padding: "24px" }}>
-            <div style={{ fontSize: "11px", fontWeight: "700", color: "#444", marginBottom: "12px", letterSpacing: "1.5px" }}>BEFORE</div>
-            <p style={{ color: "#555", fontSize: "14px", lineHeight: "1.7", margin: 0 }}>
-              Blue vintage jacket. Size M. Good condition. Pick up or shipping available.
+            <div style={{ fontSize: "11px", fontWeight: "700", color: "#444", marginBottom: "12px", letterSpacing: "1.5px" }}>📸 YOUR PHOTO</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0a", border: "1px solid #1f1f1f", borderRadius: "10px", padding: "28px", marginBottom: "10px" }}>
+              <div style={{ fontSize: "64px", lineHeight: 1 }}>🧥</div>
+            </div>
+            <p style={{ color: "#555", fontSize: "13px", lineHeight: "1.6", margin: 0, textAlign: "center" }}>
+              Just a quick phone snap — no caption needed.
             </p>
           </div>
           <div style={{ background: "#0d1f24", border: "1px solid #22d3ee", borderRadius: "12px", padding: "24px" }}>
-            <div style={{ fontSize: "11px", fontWeight: "700", color: "#22d3ee", marginBottom: "12px", letterSpacing: "1.5px" }}>AFTER — COPYAI PRO</div>
+            <div style={{ fontSize: "11px", fontWeight: "700", color: "#22d3ee", marginBottom: "12px", letterSpacing: "1.5px" }}>AFTER — WRITTEN FROM YOUR PHOTO</div>
             <p style={{ color: "#ddd", fontSize: "14px", lineHeight: "1.7", margin: 0 }}>
               <strong style={{ color: "white" }}>Vintage 90s Levi's Denim Jacket | Size M | Distressed Wash | Rare Find — Ships Fast</strong>
               <br /><br />
@@ -185,7 +188,7 @@ export default function Home() {
       <section id="tools" style={{ maxWidth: "620px", margin: "0 auto", padding: "0 24px 80px" }}>
         <h2 style={{ textAlign: "center", fontSize: "22px", fontWeight: "700", marginBottom: "6px" }}>Write eBay listings with AI — free to try</h2>
         <p style={{ textAlign: "center", color: "#666", fontSize: "14px", marginBottom: "20px" }}>
-          Describe your item once. Get a ready-to-paste listing <span style={{ color: "#22d3ee" }}>and</span> a suggested price — together.
+          Snap a photo of your item and get a ready-to-paste listing <span style={{ color: "#22d3ee" }}>and</span> a suggested price — together. Or type a description instead.
         </p>
 
         <div style={{ background: "#111", border: "1px solid #1f1f1f", borderRadius: "16px", padding: "28px" }}>
@@ -210,6 +213,28 @@ export default function Home() {
             </div>
           ) : (
             <div>
+              <div style={{ marginBottom: "20px" }}>
+                {photo ? (
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photo.data} alt="Item to list" style={{ maxHeight: "220px", maxWidth: "100%", borderRadius: "12px", border: "2px solid #22d3ee", display: "block" }} />
+                    <button
+                      onClick={() => setPhoto(null)}
+                      style={{ position: "absolute", top: "8px", right: "8px", background: "rgba(0,0,0,0.7)", border: "1px solid #333", color: "#ddd", borderRadius: "999px", width: "28px", height: "28px", cursor: "pointer", fontSize: "14px", lineHeight: "1" }}
+                      aria-label="Remove photo">
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", padding: "40px 20px", background: "#0d1f24", border: "2px dashed #22d3ee", borderRadius: "14px", cursor: "pointer", textAlign: "center" }}>
+                    <div style={{ fontSize: "44px", lineHeight: 1 }}>📸</div>
+                    <div style={{ fontSize: "18px", fontWeight: "800", color: "white" }}>Snap or upload a photo</div>
+                    <div style={{ fontSize: "13px", color: "#7fd9e8", maxWidth: "360px" }}>AI identifies your item and writes the full listing + price — no typing needed.</div>
+                    <input type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
+                  </label>
+                )}
+              </div>
+
               <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>Which platform?</label>
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -221,38 +246,17 @@ export default function Home() {
                 </div>
               </div>
 
-              <div style={{ marginBottom: "16px" }}>
-                <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>
-                  Upload a photo <span style={{ color: "#444" }}>(optional — let AI identify it for you)</span>
-                </label>
-                {photo ? (
-                  <div style={{ position: "relative", display: "inline-block" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={photo.data} alt="Item to list" style={{ maxHeight: "160px", maxWidth: "100%", borderRadius: "8px", border: "1px solid #2a2a2a", display: "block" }} />
-                    <button
-                      onClick={() => setPhoto(null)}
-                      style={{ position: "absolute", top: "8px", right: "8px", background: "rgba(0,0,0,0.7)", border: "1px solid #333", color: "#ddd", borderRadius: "999px", width: "28px", height: "28px", cursor: "pointer", fontSize: "14px", lineHeight: "1" }}
-                      aria-label="Remove photo">
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "20px", background: "#1a1a1a", border: "1px dashed #2a2a2a", borderRadius: "8px", color: "#666", fontSize: "14px", cursor: "pointer" }}>
-                    📷 Tap to upload a photo
-                    <input type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
-                  </label>
-                )}
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", margin: "18px 0 14px" }}>
+                <div style={{ flex: 1, height: "1px", background: "#1f1f1f" }} />
+                <span style={{ color: "#444", fontSize: "12px", fontWeight: 700, letterSpacing: "1px" }}>{photo ? "ADD DETAILS (OPTIONAL)" : "OR DESCRIBE IT INSTEAD"}</span>
+                <div style={{ flex: 1, height: "1px", background: "#1f1f1f" }} />
               </div>
 
-              <label style={{ display: "block", fontSize: "13px", color: "#555", marginBottom: "8px" }}>
-                {photo ? "Add details " : "Describe your item"}
-                {photo && <span style={{ color: "#444" }}>(optional)</span>}
-              </label>
               <textarea
                 value={item}
                 onChange={e => setItem(e.target.value)}
-                placeholder="e.g. Vintage Levi's denim jacket, size M, 90s wash, good condition, no rips"
-                rows={3}
+                placeholder={photo ? "Add anything the photo can't show — flaws, measurements, brand…" : "e.g. Vintage Levi's denim jacket, size M, 90s wash, good condition, no rips"}
+                rows={photo ? 2 : 3}
                 style={{ width: "100%", background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "8px", padding: "12px", color: "white", fontSize: "14px", boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", marginBottom: "16px" }}
               />
               <button
