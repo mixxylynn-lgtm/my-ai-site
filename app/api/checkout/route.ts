@@ -1,15 +1,9 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 
-// Stripe price IDs by plan. Monthly + annual are recurring subscriptions;
-// lifetime is a one-time payment.
-const PLANS = {
-  monthly:  { price: "price_1TgUgYCehIvEVmmtjt6puNJf", mode: "subscription" as const },
-  annual:   { price: "price_1TgUWnCehIvEVmmtVpUymVoh", mode: "subscription" as const },
-  lifetime: { price: "price_1TgUdHCehIvEVmmtKPIuo8P6", mode: "payment" as const },
-};
-
-type Plan = keyof typeof PLANS;
+// One-time price for CopyAI Pro Bot access, in cents.
+const PRICE_CENTS = 499;
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,26 +15,57 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { plan, email } = await req.json();
-    const selected = PLANS[plan as Plan];
-    if (!selected) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseServiceKey) {
       return NextResponse.json(
-        { error: `Unknown plan: ${plan}` },
-        { status: 400 }
+        { error: "Server misconfiguration: missing Supabase credentials." },
+        { status: 500 }
       );
     }
 
-    const origin =
-      req.headers.get("origin") || new URL(req.url).origin;
+    const { email } = await req.json().catch(() => ({ email: undefined }));
+
+    // Mint a one-time access code and record it as unpaid. The webhook flips it
+    // to paid once Stripe confirms the payment; the bot burns it on activation.
+    const code = randomUUID().replace(/-/g, "");
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { error: insertError } = await supabase
+      .from("bot_access_codes")
+      .insert({ code, email: email ?? null, paid: false, claimed: false });
+    if (insertError) {
+      console.error("CHECKOUT: failed to store access code:", insertError.message);
+      return NextResponse.json({ error: "Could not start checkout." }, { status: 500 });
+    }
+
+    const origin = req.headers.get("origin") || new URL(req.url).origin;
 
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(stripeSecretKey);
 
     const session = await stripe.checkout.sessions.create({
-      mode: selected.mode,
-      line_items: [{ price: selected.price, quantity: 1 }],
+      mode: "payment",
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: "usd",
+            unit_amount: PRICE_CENTS,
+            product_data: {
+              name: "CopyAI Pro Bot Access",
+              description:
+                "One-time access to the CopyAI Pro Telegram bot — send a photo, get a full marketplace listing.",
+            },
+          },
+        },
+      ],
+      // Carry the code through Stripe so the webhook can mark it paid.
+      metadata: { access_code: code },
+      client_reference_id: code,
       ...(email ? { customer_email: email } : {}),
-      success_url: `${origin}/?checkout=success`,
+      success_url: `${origin}/success?code=${code}`,
       cancel_url: `${origin}/?checkout=cancelled`,
     });
 

@@ -14,18 +14,18 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://copyaipro.xyz"),
-  title: "CopyAI Pro — AI eBay Listing Generator | Write Listings with AI",
+  title: "CopyAI Pro — Photo to Marketplace Listing on Telegram",
   description:
-    "CopyAI Pro is an AI eBay listing generator and listing writer. Write optimized eBay, Etsy, Depop & Poshmark listings with AI in 30 seconds — plus suggested pricing. Try free.",
+    "Send a photo to the CopyAI Pro Telegram bot and get a full marketplace listing back in seconds — eBay, Etsy, Depop, Poshmark, Facebook Marketplace and more. One-time $4.99.",
   keywords: [
-    "AI eBay listing generator",
-    "write eBay listings with AI",
-    "AI Etsy listing tool",
-    "eBay listing writer",
     "AI listing generator",
-    "Etsy listing generator",
+    "photo to listing",
+    "Telegram listing bot",
+    "eBay listing generator",
+    "Etsy listing tool",
     "Depop listing generator",
     "Poshmark listing tool",
+    "Facebook Marketplace listing",
     "reseller tools",
   ],
   alternates: { canonical: "https://copyaipro.xyz" },
@@ -33,15 +33,15 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://copyaipro.xyz",
     siteName: "CopyAI Pro",
-    title: "AI eBay Listing Generator — Write Listings with AI in 30s",
+    title: "Get a full marketplace listing from any photo in seconds",
     description:
-      "Write optimized eBay, Etsy, Depop & Poshmark listings with AI — plus suggested pricing — in 30 seconds. Built by a reseller. Try free.",
+      "Send a photo to our Telegram bot and get a complete listing back instantly — eBay, Etsy, Depop, Poshmark, Facebook Marketplace and more. One-time $4.99.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI eBay Listing Generator — CopyAI Pro",
+    title: "CopyAI Pro — Photo to Marketplace Listing on Telegram",
     description:
-      "Write optimized eBay & Etsy listings with AI in 30 seconds, plus suggested pricing. Try free.",
+      "Send a photo to our Telegram bot and get a full marketplace listing back in seconds. One-time $4.99.",
     creator: "@ThriftAndStack",
   },
   verification: {

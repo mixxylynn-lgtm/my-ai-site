@@ -55,12 +55,53 @@ export async function POST(req: Request) {
 
   const db = createClient(supabaseUrl, supabaseKey);
 
-  // /start (and other slash commands) get a friendly intro, no gating.
+  // Slash commands. `/start <code>` redeems a paid access code (from the deep
+  // link on the checkout success page); everything else is a friendly intro.
   if (text.startsWith("/")) {
+    const payload = text.startsWith("/start") ? text.split(/\s+/)[1]?.trim() : undefined;
+
+    if (payload) {
+      const { data: codeRow } = await db
+        .from("bot_access_codes")
+        .select("code, paid, claimed")
+        .eq("code", payload)
+        .maybeSingle();
+
+      if (!codeRow) {
+        await sendTelegram(token, chatId, "Hmm, that activation link isn't valid. Get access for $4.99 at copyaipro.xyz");
+        return NextResponse.json({ ok: true });
+      }
+      if (!codeRow.paid) {
+        await sendTelegram(token, chatId, "⏳ Your payment is still processing. Wait a few seconds, then tap the activation link again.");
+        return NextResponse.json({ ok: true });
+      }
+      if (codeRow.claimed) {
+        await sendTelegram(token, chatId, "This activation link has already been used. If that was you, you're all set — just send a photo or a short description!");
+        return NextResponse.json({ ok: true });
+      }
+
+      // Activate this Telegram account and burn the code.
+      await db.from("bot_users").upsert(
+        { telegram_id: telegramId, username, active: true },
+        { onConflict: "telegram_id" },
+      );
+      await db
+        .from("bot_access_codes")
+        .update({ claimed: true, claimed_at: new Date().toISOString(), telegram_id: telegramId })
+        .eq("code", payload);
+
+      await sendTelegram(
+        token,
+        chatId,
+        "✅ You're in! Send me a photo of your item (or a short description) and I'll write you a full marketplace listing + suggested price.",
+      );
+      return NextResponse.json({ ok: true });
+    }
+
     await sendTelegram(
       token,
       chatId,
-      "👋 Send me a photo of your item or a short description, and I'll write you a full marketplace listing + suggested price.\n\nAccess is for CopyAI Pro subscribers — subscribe at copyaipro.xyz",
+      "👋 Send me a photo of your item or a short description, and I'll write you a full marketplace listing + suggested price.\n\nGet access for $4.99 at copyaipro.xyz",
     );
     return NextResponse.json({ ok: true });
   }
@@ -83,13 +124,13 @@ export async function POST(req: Request) {
       OWNER_CHAT_ID,
       `🆕 New user tried CopyAI Pro Bot:\n${username ? "@" + username : "(no username)"} — id ${telegramId}`,
     );
-    await sendTelegram(token, chatId, "Subscribe at copyaipro.xyz to access CopyAI Pro Bot");
+    await sendTelegram(token, chatId, "Get access for $4.99 at copyaipro.xyz, then tap the activation link to unlock the bot.");
     return NextResponse.json({ ok: true });
   }
 
   // Known but not subscribed.
   if (!existing.active) {
-    await sendTelegram(token, chatId, "Subscribe at copyaipro.xyz to access CopyAI Pro Bot");
+    await sendTelegram(token, chatId, "Get access for $4.99 at copyaipro.xyz, then tap the activation link to unlock the bot.");
     return NextResponse.json({ ok: true });
   }
 

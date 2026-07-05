@@ -14,9 +14,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing env vars" }, { status: 500 });
   }
 
-  const { createClient } = await import("@supabase/supabase-js");
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
   let event;
   try {
     const Stripe = (await import("stripe")).default;
@@ -28,15 +25,28 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as any;
-    const email = session.customer_details?.email;
-    const amount = session.amount_total;
 
-    let plan = "starter";
-    if (amount >= 6900) plan = "business";
-    else if (amount >= 2900) plan = "pro";
+    // Only treat it as paid if Stripe actually collected the money.
+    const isPaid = session.payment_status === "paid" || session.status === "complete";
+    const code = session.metadata?.access_code ?? session.client_reference_id;
+    const email = session.customer_details?.email ?? session.customer_email ?? null;
 
-    if (email) {
-      await supabase.from("users").update({ plan }).eq("email", email);
+    if (isPaid && code) {
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      // Flip the pending code to paid. The bot activates the buyer's Telegram
+      // account when they open the t.me/<bot>?start=<code> deep link.
+      const { error } = await supabase
+        .from("bot_access_codes")
+        .update({ paid: true, paid_at: new Date().toISOString(), ...(email ? { email } : {}) })
+        .eq("code", code);
+
+      if (error) {
+        console.error("WEBHOOK: failed to mark code paid:", error.message);
+        // 500 so Stripe retries rather than dropping a paid customer.
+        return NextResponse.json({ error: "Could not record payment" }, { status: 500 });
+      }
     }
   }
 
