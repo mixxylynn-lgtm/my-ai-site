@@ -37,21 +37,7 @@ export async function POST(req: NextRequest) {
       .insert({ code, email: email ?? null, paid: false, claimed: false });
     if (insertError) {
       console.error("CHECKOUT: failed to store access code:", insertError.message);
-      // TEMPORARY DIAGNOSTIC: surface the real DB error to pin down the cause.
-      return NextResponse.json(
-        {
-          error: "Could not start checkout.",
-          debug: {
-            code: (insertError as any).code,
-            message: insertError.message,
-            details: (insertError as any).details,
-            hint: (insertError as any).hint,
-            serviceKeyLen: (process.env.SUPABASE_SERVICE_ROLE_KEY || "").length,
-            serviceKeyPrefix: (process.env.SUPABASE_SERVICE_ROLE_KEY || "").slice(0, 6),
-          },
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Could not start checkout." }, { status: 500 });
     }
 
     const origin = req.headers.get("origin") || new URL(req.url).origin;
